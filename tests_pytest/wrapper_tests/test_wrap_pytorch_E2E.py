@@ -47,15 +47,30 @@ def imagenet_dataset() -> Callable[[int, bool], DataLoader]:
     """
     # Download ImageNet dataset if not present
     if not os.path.isdir('imagenet'):
+        # Create base directory for ImageNet data storage
         os.system('mkdir imagenet')
+        
+        # Download ImageNet validation dataset and development kit
+        # These files are essential for PyTorch model evaluation and testing
         os.system('wget -P imagenet https://image-net.org/data/ILSVRC/2012/ILSVRC2012_devkit_t12.tar.gz')
         os.system('wget -P imagenet https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_val.tar')
 
+    # Load MobileNetV2 weights and create PyTorch ImageNet dataset
     weights = MobileNet_V2_Weights.IMAGENET1K_V2
     dataset = ImageNet(root='./imagenet', split='val',
                        transform=weights.transforms())
     
     def get_dataloader(batch_size: int, shuffle: bool) -> DataLoader:
+        """
+        Create PyTorch DataLoader with specified batch size and shuffle option.
+        
+        Args:
+            batch_size: Number of samples per batch
+            shuffle: Whether to shuffle the dataset
+            
+        Returns:
+            DataLoader: PyTorch DataLoader ready for model training/evaluation
+        """
         return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
     
     return get_dataloader
@@ -95,13 +110,27 @@ def representative_dataset_gen(imagenet_dataset: Callable[[int, bool], DataLoade
     Returns:
         function: Generator function that yields [batch_tensor] lists
     """
-    batch_size = 10
-    n_iter = 5
+    batch_size = 10  # Optimal batch size for representative data sampling
+    n_iter = 5       # Number of iterations to generate sufficient calibration data
+    
+    # Create DataLoader instance for representative data generation
     dataloader = imagenet_dataset(batch_size, shuffle=True)
     
     def gen() -> Generator[List[torch.Tensor], None, None]:
+        """
+        Generator function that yields batches of representative data.
+        
+        This function creates an iterator from the DataLoader and yields
+        batches of image tensors for quantization calibration. Each batch
+        is wrapped in a list format as expected by MCT quantization engine.
+        
+        Yields:
+            List[torch.Tensor]: Batch of image tensors for calibration
+        """
+        # Create iterator from DataLoader for efficient batch sampling
         dataloader_iter = iter(dataloader)
         for _ in range(n_iter):
+            # Yield only image data (first element), discard labels
             yield [next(dataloader_iter)[0]]
     
     return gen
@@ -122,19 +151,33 @@ def evaluate_model(model: torch.nn.Module, testloader: DataLoader) -> float:
     Returns:
         float: Top-1 accuracy percentage (0-100)
     """
+    # Automatically detect and use the best available compute device
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
-    model.eval()  # Set model to evaluation mode
+    model.eval()  # Set model to evaluation mode (disable dropout, batch norm training)
+    
+    # Initialize accuracy tracking variables
     correct = 0
     total = 0
+    
+    # Perform evaluation without gradient computation for efficiency
     with torch.no_grad():
         for data in tqdm(testloader):
+            # Move data to the same device as model
             images, labels = data
             images, labels = images.to(device), labels.to(device)
+            
+            # Forward pass through the model
             outputs = model(images)
+            
+            # Get predicted class indices (highest probability)
             _, predicted = torch.max(outputs.data, 1)
+            
+            # Update accuracy counters
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
+    
+    # Calculate and display final accuracy percentage
     val_acc = (100 * correct / total)
     print(f'Accuracy: {val_acc:.2f}%')
     return val_acc
@@ -218,11 +261,13 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         Returns:
             tuple: (success_flag, quantized_model)
         """
+        # Configure quantization method and framework settings
         method = 'PTQ'
         framework = 'pytorch'
-        use_MCT_TPC = False
-        use_MixP = False
+        use_MCT_TPC = False  # Use custom target platform capabilities
+        use_MixP = False     # Disable mixed precision for standard PTQ
 
+        # Define quantization parameters for optimal model performance
         param_items = [
             ['target_platform_version', 'v1',
              'Target platform capabilities version.'],
@@ -236,6 +281,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
              'Path to save the model.']
         ]
 
+        # Execute quantization using MCTWrapper and export to ONNX
         wrapper = mct.wrapper.mctwrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(
             float_model, method, framework, use_MCT_TPC, use_MixP,
@@ -260,11 +306,13 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         Returns:
             tuple: (success_flag, quantized_model)
         """
+        # Configure quantization method with mixed precision enabled
         method = 'PTQ'
         framework = 'pytorch'
-        use_MCT_TPC = False
-        use_MixP = True
+        use_MCT_TPC = False  # Use custom target platform capabilities
+        use_MixP = True      # Enable mixed precision optimization
 
+        # Define mixed precision quantization parameters
         param_items = [
             ['target_platform_version', 'v1',
              'Target platform capabilities version.'],
@@ -275,6 +323,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
              'Path to save the model.']
         ]
 
+        # Execute mixed precision quantization and export to ONNX
         wrapper = mct.wrapper.mctwrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(
             float_model, method, framework, use_MCT_TPC, use_MixP,
@@ -300,11 +349,13 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         Returns:
             tuple: (success_flag, quantized_model)
         """
+        # Configure gradient-based quantization method
         method = 'GPTQ'
         framework = 'pytorch'
-        use_MCT_TPC = False
-        use_MixP = False
+        use_MCT_TPC = False  # Use custom target platform capabilities
+        use_MixP = False     # Disable mixed precision for standard GPTQ
 
+        # Define GPTQ-specific parameters for gradient-based optimization
         param_items = [
             ['target_platform_version', 'v1',
              'Target platform capabilities version.'],
@@ -314,6 +365,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
              'Path to save the model.']
         ]
 
+        # Execute gradient-based quantization and export to ONNX
         wrapper = mct.wrapper.mctwrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(
             float_model, method, framework, use_MCT_TPC, use_MixP,
@@ -338,11 +390,13 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         Returns:
             tuple: (success_flag, quantized_model)
         """
+        # Configure gradient-based quantization with mixed precision
         method = 'GPTQ'
         framework = 'pytorch'
-        use_MCT_TPC = False
-        use_MixP = True
+        use_MCT_TPC = False  # Use custom target platform capabilities
+        use_MixP = True      # Enable mixed precision for optimal accuracy
 
+        # Define GPTQ mixed precision parameters for advanced optimization
         param_items = [
             ['target_platform_version', 'v1',
              'Target platform capabilities version.'],
@@ -355,6 +409,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
              'Path to save the model.']
         ]
 
+        # Execute advanced GPTQ with mixed precision and export to ONNX
         wrapper = mct.wrapper.mctwrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(
             float_model, method, framework, use_MCT_TPC, use_MixP,
@@ -369,23 +424,24 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         "GPTQ_Pytorch_MixP": GPTQ_Pytorch_MixP,
     }
     
-    # Run the quantization method and verify success
+    # Run the quantization method and verify successful completion
     flag, quantized_model = quant_methods[quant_func](float_model)
     assert flag, f"Quantization failed for {quant_func}"
 
-    # Validation: Evaluate quantized model accuracy on ImageNet
+    # Validation: Evaluate quantized model accuracy on ImageNet validation set
     val_dataloader = imagenet_dataset(50, shuffle=False)
     quantized_accuracy = evaluate_model(quantized_model, val_dataloader)
     
-    # Display results with detailed accuracy information
+    # Display comprehensive accuracy results for user verification
     print(f"{quant_func} Quantized model's Top 1 accuracy on the ImageNet "
           f"validation set: {quantized_accuracy:.2f}%")
 
     # Assert minimum accuracy threshold to ensure quantization quality
+    # This prevents severely degraded models from passing the test
     assert quantized_accuracy >= 30.0, \
         f"Accuracy too low: {quantized_accuracy:.2f}%"
 
 
 if __name__ == '__main__':
-    """Run tests when script is executed directly."""
+    """Run tests when script is executed directly for development testing."""
     pytest.main([__file__])
