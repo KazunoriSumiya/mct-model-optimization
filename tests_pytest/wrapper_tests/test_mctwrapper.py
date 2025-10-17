@@ -1,5 +1,5 @@
 """
-Test cases for MCTWrapper class from model_compression_toolkit.wrapper.mctwrapper
+Test cases for MCTWrapper class from model_compression_toolkit.wrapper.mct_wrapper
 """
 
 import pytest
@@ -13,7 +13,7 @@ sys.path.append('/home/ubuntu/wrapper/sonyfork/mct-model-optimization')
 print(sys.path)
 
 from model_compression_toolkit.core import QuantizationErrorMethod
-from model_compression_toolkit.wrapper.mctwrapper import MCTWrapper
+from model_compression_toolkit.wrapper.mct_wrapper import MCTWrapper
 
 
 class TestMCTWrapper:
@@ -106,7 +106,7 @@ class TestMCTWrapper:
         assert 'non_existing_key' not in wrapper.params
         assert 'another_fake_key' not in wrapper.params
 
-    @patch('model_compression_toolkit.wrapper.mctwrapper.mct.get_target_platform_capabilities')
+    @patch('model_compression_toolkit.wrapper.mct_wrapper.mct.get_target_platform_capabilities')
     def test_get_TPC_with_MCT_TPC(self, mock_mct_get_tpc: Mock) -> None:
         """
         Test _get_TPC method when using MCT TPC.
@@ -134,7 +134,7 @@ class TestMCTWrapper:
         mock_mct_get_tpc.assert_called_once_with(**expected_params)
         assert wrapper.tpc == mock_tpc
 
-    @patch('model_compression_toolkit.wrapper.mctwrapper.'
+    @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'edgemdt_tpc.get_target_platform_capabilities')
     def test_get_TPC_without_MCT_TPC(self, mock_edgemdt_get_tpc: Mock) -> None:
         """
@@ -423,13 +423,13 @@ class TestMCTWrapperIntegration:
         - LQ-PTQ TensorFlow: Low-bit quantization specific to TensorFlow
     """
 
-    @patch('model_compression_toolkit.wrapper.mctwrapper.'
+    @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._get_TPC')
-    @patch('model_compression_toolkit.wrapper.mctwrapper.'
+    @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._select_method')
-    @patch('model_compression_toolkit.wrapper.mctwrapper.'
+    @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._setting_PTQ')
-    @patch('model_compression_toolkit.wrapper.mctwrapper.'
+    @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._export_model')
     def test_quantize_and_export_PTQ_flow(
             self, mock_export: Mock, mock_setting_ptq: Mock,
@@ -485,13 +485,13 @@ class TestMCTWrapperIntegration:
         assert success is True
         assert result_model == mock_quantized_model
 
-    @patch('model_compression_toolkit.wrapper.mctwrapper.'
+    @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._get_TPC')
-    @patch('model_compression_toolkit.wrapper.mctwrapper.'
+    @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._select_method')
-    @patch('model_compression_toolkit.wrapper.mctwrapper.'
+    @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._setting_GPTQ_MixP')
-    @patch('model_compression_toolkit.wrapper.mctwrapper.'
+    @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._export_model')
     def test_quantize_and_export_GPTQ_MixP_flow(
             self, mock_export: Mock, mock_setting_gptq_mixp: Mock,
@@ -541,7 +541,7 @@ class TestMCTWrapperIntegration:
         assert success is True
         assert result_model == mock_quantized_model
 
-    @patch('model_compression_toolkit.wrapper.mctwrapper.'
+    @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._exec_lq_ptq')
     def test_quantize_and_export_LQPTQ_tensorflow(self, mock_exec_lq_ptq: Mock) -> None:
         """

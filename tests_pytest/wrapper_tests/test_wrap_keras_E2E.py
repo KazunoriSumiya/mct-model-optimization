@@ -207,7 +207,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
                        ['save_model_path', './qmodel_PTQ_Keras.tflite', 'Path to save the model.']]
 
         # Execute quantization using MCTWrapper
-        wrapper = mct.wrapper.mctwrapper.MCTWrapper()
+        wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_MixP, representative_dataset_gen, param_items)
         return flag, quantized_model
 
@@ -237,7 +237,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
                        ['save_model_path', './qmodel_PTQ_Keras_MixP.tflite', 'Path to save the model.']]
 
         # Execute quantization with mixed precision using MCTWrapper
-        wrapper = mct.wrapper.mctwrapper.MCTWrapper()
+        wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_MixP, representative_dataset_gen, param_items)
         return flag, quantized_model
 
@@ -266,7 +266,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
                        ['save_model_path', './qmodel_GPTQ_Keras.tflite', 'Path to save the model.']]
 
         # Execute gradient-based quantization using MCTWrapper
-        wrapper = mct.wrapper.mctwrapper.MCTWrapper()
+        wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_MixP, representative_dataset_gen, param_items)
         return flag, quantized_model
 
@@ -291,7 +291,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
 
                        ['save_model_path', './qmodel_GPTQ_Keras_MixP.tflite', 'Path to save the model.']]
 
-        wrapper = mct.wrapper.mctwrapper.MCTWrapper()
+        wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_MixP, representative_dataset_gen, param_items)
         return flag, quantized_model
 

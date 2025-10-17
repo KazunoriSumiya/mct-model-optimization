@@ -1,1 +1,1 @@
-from model_compression_toolkit.wrapper.mctwrapper import MCTWrapper
+from model_compression_toolkit.wrapper.mct_wrapper import MCTWrapper

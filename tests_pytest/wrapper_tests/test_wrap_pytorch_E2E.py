@@ -282,7 +282,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         ]
 
         # Execute quantization using MCTWrapper and export to ONNX
-        wrapper = mct.wrapper.mctwrapper.MCTWrapper()
+        wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(
             float_model, method, framework, use_MCT_TPC, use_MixP,
             representative_dataset_gen, param_items)
@@ -324,7 +324,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         ]
 
         # Execute mixed precision quantization and export to ONNX
-        wrapper = mct.wrapper.mctwrapper.MCTWrapper()
+        wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(
             float_model, method, framework, use_MCT_TPC, use_MixP,
             representative_dataset_gen, param_items)
@@ -366,7 +366,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         ]
 
         # Execute gradient-based quantization and export to ONNX
-        wrapper = mct.wrapper.mctwrapper.MCTWrapper()
+        wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(
             float_model, method, framework, use_MCT_TPC, use_MixP,
             representative_dataset_gen, param_items)
@@ -410,7 +410,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         ]
 
         # Execute advanced GPTQ with mixed precision and export to ONNX
-        wrapper = mct.wrapper.mctwrapper.MCTWrapper()
+        wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(
             float_model, method, framework, use_MCT_TPC, use_MixP,
             representative_dataset_gen, param_items)
