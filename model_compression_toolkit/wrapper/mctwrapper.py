@@ -1,7 +1,6 @@
 import os
 from typing import Dict, Any, List, Tuple, Optional, Union, Callable
 import model_compression_toolkit as mct
-#from model_compression_toolkit.core import QuantizationErrorMethod
 import edgemdt_tpc
 #import low_bit_quantizer_ptq.ptq as lq_ptq
 
@@ -159,10 +158,10 @@ class MCTWrapper:
 
             if self.use_MixP:
                 # Use mixed precision PTQ parameter configuration
-                self._Setting_PTQparam = self._Setting_PTQ_MixP
+                self._setting_PTQparam = self._setting_PTQ_MixP
             else:
                 # Use standard PTQ parameter configuration
-                self._Setting_PTQparam = self._Setting_PTQ
+                self._setting_PTQparam = self._setting_PTQ
 
         elif self.method == 'GPTQ':
             # Set Gradient Post-Training Quantization methods
@@ -173,10 +172,10 @@ class MCTWrapper:
 
             if self.use_MixP:
                 # Use mixed precision GPTQ parameter configuration
-                self._Setting_PTQparam = self._Setting_GPTQ_MixP
+                self._setting_GPTQparam = self._setting_GPTQ_MixP
             else:
                 # Use standard GPTQ parameter configuration
-                self._Setting_PTQparam = self._Setting_GPTQ
+                self._setting_PTQparam = self._setting_GPTQ
 
     def _get_TPC(self) -> None:
         """
@@ -207,7 +206,7 @@ class MCTWrapper:
             # Get TPC from EdgeMDT framework
             self.tpc = edgemdt_tpc.get_target_platform_capabilities(**params_TPC)
 
-    def _Setting_PTQ_MixP(self) -> Dict[str, Any]:
+    def _setting_PTQ_MixP(self) -> Dict[str, Any]:
         """
         Generate parameter dictionary for mixed-precision PTQ.
 
@@ -226,12 +225,12 @@ class MCTWrapper:
             'core_config': ptq_config,
             'target_platform_capabilities': self.tpc
         }
-        RU_data = self.resource_utilization_data(**params_RUDCfg)
+        ru_data = self.resource_utilization_data(**params_RUDCfg)
         weights_compression_ratio = (
             0.75 if self.params['weights_compression_ratio'] is None
             else self.params['weights_compression_ratio'])
         resource_utilization = mct.core.ResourceUtilization(
-            RU_data.weights_memory * weights_compression_ratio)
+            ru_data.weights_memory * weights_compression_ratio)
 
         params_PTQ = {
             'in_model': self.float_model,
@@ -245,7 +244,7 @@ class MCTWrapper:
             del params_PTQ['in_model']
         return params_PTQ
 
-    def _Setting_PTQ(self) -> Dict[str, Any]:
+    def _setting_PTQ(self) -> Dict[str, Any]:
         """
         Generate parameter dictionary for PTQ.
 
@@ -276,7 +275,7 @@ class MCTWrapper:
             del params_PTQ['in_model']
         return params_PTQ
 
-    def _Setting_GPTQ_MixP(self) -> Dict[str, Any]:
+    def _setting_GPTQ_MixP(self) -> Dict[str, Any]:
         """
         Generate parameter dictionary for mixed-precision GPTQ.
 
@@ -301,12 +300,12 @@ class MCTWrapper:
             'core_config': ptq_config,
             'target_platform_capabilities': self.tpc
         }
-        RU_data = self.resource_utilization_data(**params_RUDCfg)
+        ru_data = self.resource_utilization_data(**params_RUDCfg)
         weights_compression_ratio = (
             0.75 if self.params['weights_compression_ratio'] is None
             else self.params['weights_compression_ratio'])
         resource_utilization = mct.core.ResourceUtilization(
-            RU_data.weights_memory * weights_compression_ratio)
+            ru_data.weights_memory * weights_compression_ratio)
 
         config = mct.core.CoreConfig(
             mixed_precision_config = mixed_precision_config,
@@ -326,7 +325,7 @@ class MCTWrapper:
             del params_GPTQ['in_model']
         return params_GPTQ
 
-    def _Setting_GPTQ(self) -> Dict[str, Any]:
+    def _setting_GPTQ(self) -> Dict[str, Any]:
         """
         Generate parameter dictionary for GPTQ.
 
@@ -350,7 +349,7 @@ class MCTWrapper:
             del params_GPTQ['in_model']
         return params_GPTQ
 
-    def _Exec_lq_ptq(self) -> Any:
+    def _exec_lq_ptq(self) -> Any:
         """
         Execute Low-bit Quantization Post-Training Quantization (LQ-PTQ).
 
@@ -442,7 +441,7 @@ class MCTWrapper:
         # Step 3: Handle LQ-PTQ method separately (TensorFlow only)
         if self.method == 'LQPTQ':
             # Execute Low-bit Quantization Post-Training Quantization
-            quantized_model = self._Exec_lq_ptq()
+            quantized_model = self._exec_lq_ptq()
             return True, quantized_model
 
         # Step 4: Select framework-specific quantization methods
@@ -452,7 +451,7 @@ class MCTWrapper:
         self._get_TPC()
 
         # Step 6: Prepare quantization parameters based on method and settings
-        params_PTQ = self._Setting_PTQparam()
+        params_PTQ = self._setting_PTQparam()
         
         # Step 7: Execute quantization process (PTQ or GPTQ)
         quantized_model, _ = self._post_training_quantization(**params_PTQ)

@@ -224,7 +224,7 @@ class TestMCTWrapper:
     @patch('model_compression_toolkit.core.MixedPrecisionQuantizationConfig')
     @patch('model_compression_toolkit.core.CoreConfig')
     @patch('model_compression_toolkit.core.ResourceUtilization')
-    def test_Setting_PTQ_MixP(
+    def test_setting_PTQ_MixP(
             self, mock_resource_util: Mock, mock_core_config: Mock,
             mock_mixed_precision_config: Mock) -> None:
         """
@@ -253,7 +253,7 @@ class TestMCTWrapper:
         mock_resource_util_instance = Mock()
         mock_resource_util.return_value = mock_resource_util_instance
         
-        result = wrapper._Setting_PTQ_MixP()
+        result = wrapper._setting_PTQ_MixP()
         
         # Verify the method calls
         mock_mixed_precision_config.assert_called_with(
@@ -273,7 +273,7 @@ class TestMCTWrapper:
 
     @patch('model_compression_toolkit.core.QuantizationConfig')
     @patch('model_compression_toolkit.core.CoreConfig')
-    def test_Setting_PTQ(self, mock_core_config: Mock, mock_quant_config: Mock) -> None:
+    def test_setting_PTQ(self, mock_core_config: Mock, mock_quant_config: Mock) -> None:
         """
         Test _Setting_PTQ method for standard Post-Training Quantization.
         
@@ -294,7 +294,7 @@ class TestMCTWrapper:
         mock_ptq_config_instance = Mock()
         mock_core_config.return_value = mock_ptq_config_instance
         
-        result = wrapper._Setting_PTQ()
+        result = wrapper._setting_PTQ()
         
         # Verify the method calls
         mock_quant_config.assert_called_with(
@@ -313,7 +313,7 @@ class TestMCTWrapper:
         assert 'in_model' not in result
         assert result['target_resource_utilization'] is None
 
-    def test_Setting_GPTQ_pytorch_framework(self) -> None:
+    def test_setting_GPTQ_pytorch_framework(self) -> None:
         """
         Test _Setting_GPTQ method for PyTorch framework configuration.
         
@@ -329,14 +329,14 @@ class TestMCTWrapper:
         wrapper.framework = 'pytorch'
         wrapper.get_gptq_config = Mock(return_value=Mock())
         
-        result = wrapper._Setting_GPTQ()
+        result = wrapper._setting_GPTQ()
         
         # Check that PyTorch-specific parameter mapping is applied
         assert 'model' in result
         assert 'in_model' not in result
         assert result['model'] == wrapper.float_model
 
-    def test_Setting_GPTQ_tensorflow_framework(self) -> None:
+    def test_setting_GPTQ_tensorflow_framework(self) -> None:
         """
         Test _Setting_GPTQ method for TensorFlow framework configuration.
         
@@ -352,7 +352,7 @@ class TestMCTWrapper:
         wrapper.framework = 'tensorflow'
         wrapper.get_gptq_config = Mock(return_value=Mock())
         
-        result = wrapper._Setting_GPTQ()
+        result = wrapper._setting_GPTQ()
         
         # Check that TensorFlow keeps 'in_model' parameter
         assert 'in_model' in result
@@ -428,7 +428,7 @@ class TestMCTWrapperIntegration:
     @patch('model_compression_toolkit.wrapper.mctwrapper.'
            'MCTWrapper._select_method')
     @patch('model_compression_toolkit.wrapper.mctwrapper.'
-           'MCTWrapper._Setting_PTQ')
+           'MCTWrapper._setting_PTQ')
     @patch('model_compression_toolkit.wrapper.mctwrapper.'
            'MCTWrapper._export_model')
     def test_quantize_and_export_PTQ_flow(
@@ -453,7 +453,7 @@ class TestMCTWrapperIntegration:
         wrapper._post_training_quantization = Mock(
             return_value=(mock_quantized_model, mock_info))
         wrapper.export_model = Mock()
-        wrapper._Setting_PTQparam = mock_setting_ptq
+        wrapper._setting_PTQparam = mock_setting_ptq
         
         mock_setting_ptq.return_value = {'mock': 'params'}
         
@@ -490,7 +490,7 @@ class TestMCTWrapperIntegration:
     @patch('model_compression_toolkit.wrapper.mctwrapper.'
            'MCTWrapper._select_method')
     @patch('model_compression_toolkit.wrapper.mctwrapper.'
-           'MCTWrapper._Setting_GPTQ_MixP')
+           'MCTWrapper._setting_GPTQ_MixP')
     @patch('model_compression_toolkit.wrapper.mctwrapper.'
            'MCTWrapper._export_model')
     def test_quantize_and_export_GPTQ_MixP_flow(
@@ -515,7 +515,7 @@ class TestMCTWrapperIntegration:
         wrapper._post_training_quantization = Mock(
             return_value=(mock_quantized_model, mock_info))
         wrapper.export_model = Mock()
-        wrapper._Setting_PTQparam = mock_setting_gptq_mixp
+        wrapper._setting_PTQparam = mock_setting_gptq_mixp
         
         mock_setting_gptq_mixp.return_value = {'mock': 'gptq_params'}
         
@@ -542,7 +542,7 @@ class TestMCTWrapperIntegration:
         assert result_model == mock_quantized_model
 
     @patch('model_compression_toolkit.wrapper.mctwrapper.'
-           'MCTWrapper._Exec_lq_ptq')
+           'MCTWrapper._exec_lq_ptq')
     def test_quantize_and_export_LQPTQ_tensorflow(self, mock_exec_lq_ptq: Mock) -> None:
         """
         Test complete quantize_and_export workflow for LQ-PTQ with TensorFlow.
