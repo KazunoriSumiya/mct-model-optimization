@@ -63,6 +63,17 @@ These techniques are essential for further optimizing models and achieving super
   
 </details>
 
+<details id="keras-wrapper">
+  <summary>wrapper</summary>
+
+  | Tutorial                                                                            | Included Features       |
+  |-------------------------------------------------------------------------------------|-------------------------|
+  | [Network Editor Usage](keras/example_keras_wrapper.ipynb) | &#x2705; wrapper |
+  
+</details>
+
+
+
 ### Pytorch Tutorials
 
 
