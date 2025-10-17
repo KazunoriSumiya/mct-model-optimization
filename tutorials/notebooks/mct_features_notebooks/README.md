@@ -68,7 +68,7 @@ These techniques are essential for further optimizing models and achieving super
 
   | Tutorial                                                                            | Included Features       |
   |-------------------------------------------------------------------------------------|-------------------------|
-  | [Network Editor Usage](keras/example_keras_wrapper.ipynb) | &#x2705; wrapper |
+  | [wrapper](keras/example_keras_wrapper.ipynb) | &#x2705; wrapper |
   
 </details>
 
@@ -124,3 +124,14 @@ These techniques are essential for further optimizing models and achieving super
   | [Quantization Troubleshooting using the Xquant Feature](pytorch/example_pytorch_xquant.ipynb) | &#x2705; Debug    |
   
 </details>
+<details id="pytorch-wrapper">
+  <summary>wrapper</summary>
+
+  | Tutorial                                                                                       | Included Features |
+  |------------------------------------------------------------------------------------------------|-------------------|
+  | [wrapper](pytorch/example_pytorch_wrapper.ipynb) | &#x2705; Debug    |
+  
+</details>
+
+
+
