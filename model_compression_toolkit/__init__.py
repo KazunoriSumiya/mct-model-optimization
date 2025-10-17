@@ -29,4 +29,4 @@ from model_compression_toolkit.trainable_infrastructure.keras.load_model import 
 
 from model_compression_toolkit import wrapper
 
-__version__ = "2.4.3"
+__version__ = "2.5.0"
