@@ -172,7 +172,7 @@ class MCTWrapper:
 
             if self.use_MixP:
                 # Use mixed precision GPTQ parameter configuration
-                self._setting_GPTQparam = self._setting_GPTQ_MixP
+                self._setting_PTQparam = self._setting_GPTQ_MixP
             else:
                 # Use standard GPTQ parameter configuration
                 self._setting_PTQparam = self._setting_GPTQ
