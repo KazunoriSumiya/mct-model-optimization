@@ -56,7 +56,7 @@ class MCTWrapper:
             # TPC
             'fw_name': 'pytorch',
             'target_platform_version': 'v1',
-            'tpc_version': '1.0',
+            'tpc_version': '5.0',
 
             # QuantizationConfig
             'activation_error_method': mct.core.QuantizationErrorMethod.MSE,
@@ -138,8 +138,9 @@ class MCTWrapper:
             if key in self.params:
                 # Update parameter value if key exists in default parameters
                 self.params[key] = value
-        else:
-            print("Warning: The key is not found in the default parameters and will be ignored.")
+            else:
+                print(f"Warning: The key '{key}' is not found in the default "
+                      f"parameters and will be ignored.")
        
     def _select_method(self) -> None:
         """
@@ -240,11 +241,11 @@ class MCTWrapper:
             'use_hessian_based_scores': self.params['use_hessian_based_scores'],
         }
         mixed_precision_config = mct.core.MixedPrecisionQuantizationConfig(**params_MPCfg)
-        ptq_config = mct.core.CoreConfig(mixed_precision_config=mixed_precision_config)
+        core_config = mct.core.CoreConfig(mixed_precision_config=mixed_precision_config)
         params_RUDCfg = {
             'in_model': self.float_model,
             'representative_data_gen': self.representative_dataset,
-            'core_config': ptq_config,
+            'core_config': core_config,
             'target_platform_capabilities': self.tpc
         }
         ru_data = self.resource_utilization_data(**params_RUDCfg)
@@ -258,7 +259,7 @@ class MCTWrapper:
             'in_model': self.float_model,
             'representative_data_gen': self.representative_dataset,
             'target_resource_utilization': resource_utilization,
-            'core_config': ptq_config,
+            'core_config': core_config,
             'target_platform_capabilities': self.tpc
         }
         if self.framework == 'pytorch':
@@ -282,14 +283,14 @@ class MCTWrapper:
             'residual_collapsing': self.params['residual_collapsing']
         }
         q_config = mct.core.QuantizationConfig(**params_QCfg)
-        ptq_config = mct.core.CoreConfig(quantization_config=q_config)
+        core_config = mct.core.CoreConfig(quantization_config=q_config)
         resource_utilization = None
 
         params_PTQ = {
             'in_model': self.float_model,
             'representative_data_gen': self.representative_dataset,
             'target_resource_utilization': resource_utilization,
-            'core_config': ptq_config,
+            'core_config': core_config,
             'target_platform_capabilities': self.tpc
         }
         if self.framework == 'pytorch':
@@ -315,11 +316,11 @@ class MCTWrapper:
             'use_hessian_based_scores': self.params['use_hessian_based_scores'],
         }
         mixed_precision_config = mct.core.MixedPrecisionQuantizationConfig(**params_MPCfg)
-        ptq_config = mct.core.CoreConfig(mixed_precision_config=mixed_precision_config)
+        core_config = mct.core.CoreConfig(mixed_precision_config=mixed_precision_config)
         params_RUDCfg = {
             'in_model': self.float_model,
             'representative_data_gen': self.representative_dataset,
-            'core_config': ptq_config,
+            'core_config': core_config,
             'target_platform_capabilities': self.tpc
         }
         ru_data = self.resource_utilization_data(**params_RUDCfg)
