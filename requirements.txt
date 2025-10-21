@@ -11,7 +11,8 @@ scipy
 protobuf
 mct-quantizers==1.6.0
 pydantic>=2.0,<2.12.0
-edge-mdt-tpc
-edge-mdt-cl @ git+https://github.com/SonySemiconductorSolutions/aitrios-edge-mdt-cl.git
-# edge-mdt-cl-dev
+edge-mdt-cl-dev
+#edge-mdt-cl @ git+https://github.com/SonySemiconductorSolutions/aitrios-edge-mdt-cl.git
 #edge-mdt-cl
+
+#edge-mdt-tpc
