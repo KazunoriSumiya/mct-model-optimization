@@ -279,7 +279,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         # Configure quantization method and framework settings
         method = 'PTQ'
         framework = 'pytorch'
-        use_MCT_TPC = False  # Use custom target platform capabilities
+        use_MCT_TPC = True  # Use custom target platform capabilities
         use_MixP = False     # Disable mixed precision for standard PTQ
 
         # Define quantization parameters for optimal model performance
@@ -324,7 +324,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         # Configure quantization method with mixed precision enabled
         method = 'PTQ'
         framework = 'pytorch'
-        use_MCT_TPC = False  # Use custom target platform capabilities
+        use_MCT_TPC = True  # Use custom target platform capabilities
         use_MixP = True      # Enable mixed precision optimization
 
         # Define mixed precision quantization parameters
@@ -367,7 +367,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         # Configure gradient-based quantization method
         method = 'GPTQ'
         framework = 'pytorch'
-        use_MCT_TPC = False  # Use custom target platform capabilities
+        use_MCT_TPC = True  # Use custom target platform capabilities
         use_MixP = False     # Disable mixed precision for standard GPTQ
 
         # Define GPTQ-specific parameters for gradient-based optimization
@@ -408,7 +408,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         # Configure gradient-based quantization with mixed precision
         method = 'GPTQ'
         framework = 'pytorch'
-        use_MCT_TPC = False  # Use custom target platform capabilities
+        use_MCT_TPC = True  # Use custom target platform capabilities
         use_MixP = True      # Enable mixed precision for optimal accuracy
 
         # Define GPTQ mixed precision parameters for advanced optimization

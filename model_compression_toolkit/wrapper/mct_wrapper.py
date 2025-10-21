@@ -451,35 +451,43 @@ class MCTWrapper:
         Returns:
             tuple: (Flag, quantized model)
         """
-    
-        # Step 1: Initialize and validate all input parameters
-        self._initialize_and_validate(
-            float_model, method, framework, use_MCT_TPC, use_MixP,
-            representative_dataset)
+        try:
+            # Step 1: Initialize and validate all input parameters
+            self._initialize_and_validate(
+                float_model, method, framework, use_MCT_TPC, use_MixP,
+                representative_dataset)
 
-        # Step 2: Apply custom parameter modifications
-        self._modify_params(param_items)
+            # Step 2: Apply custom parameter modifications
+            self._modify_params(param_items)
 
-        # Step 3: Handle LQ-PTQ method separately (TensorFlow only)
-        if self.method == 'LQPTQ':
-            # Execute Low-bit Quantization Post-Training Quantization
-            quantized_model = self._exec_lq_ptq()
+            # Step 3: Handle LQ-PTQ method separately (TensorFlow only)
+            if self.method == 'LQPTQ':
+                # Execute Low-bit Quantization Post-Training Quantization
+                quantized_model = self._exec_lq_ptq()
+                return True, quantized_model
+
+            # Step 4: Select framework-specific quantization methods
+            self._select_method()
+
+            # Step 5: Configure Target Platform Capabilities
+            self._get_TPC()
+
+            # Step 6: Prepare quantization parameters
+            params_PTQ = self._setting_PTQparam()
+            
+            # Step 7: Execute quantization process (PTQ or GPTQ)
+            quantized_model, _ = self._post_training_quantization(**params_PTQ)
+
+            # Step 8: Export quantized model to specified format
+            self._export_model(quantized_model)
+
+            # Return success flag and quantized model
             return True, quantized_model
 
-        # Step 4: Select framework-specific quantization methods
-        self._select_method()
+        except Exception as e:
+            # Log error details and re-raise the exception to caller
+            print(f"Error during quantization and export: {str(e)}")
+            raise  # Re-raise the original exception to the caller
 
-        # Step 5: Configure Target Platform Capabilities
-        self._get_TPC()
-
-        # Step 6: Prepare quantization parameters based on method and settings
-        params_PTQ = self._setting_PTQparam()
-        
-        # Step 7: Execute quantization process (PTQ or GPTQ)
-        quantized_model, _ = self._post_training_quantization(**params_PTQ)
-
-        # Step 8: Export quantized model to specified format
-        self._export_model(quantized_model)
-
-        # Return success flag and quantized model
-        return True, quantized_model
+        finally:
+            pass

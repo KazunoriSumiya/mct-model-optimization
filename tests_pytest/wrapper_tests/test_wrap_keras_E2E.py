@@ -272,7 +272,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
         # Quantization method configuration
         method = 'GPTQ'
         framework = 'tensorflow'
-        use_MCT_TPC = False
+        use_MCT_TPC = True
         use_MixP = False
 
         # Configure GPTQ-specific parameters for gradient-based optimization
@@ -294,7 +294,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
     def GPTQ_Keras_MixP(float_model: keras.Model) -> Tuple[bool, keras.Model]:
         method = 'GPTQ'
         framework = 'tensorflow'
-        use_MCT_TPC = False
+        use_MCT_TPC = True
         use_MixP = True
 
         param_items = [['target_platform_version', 'v1', 'Target platform capabilities version.'],
@@ -319,7 +319,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
     def LQPTQ_Keras(float_model: keras.Model) -> Tuple[bool, keras.Model]:
         method = 'LQPTQ'
         framework = 'tensorflow'
-        use_MCT_TPC = False
+        use_MCT_TPC = True
         use_MixP = False
 
         param_items = [

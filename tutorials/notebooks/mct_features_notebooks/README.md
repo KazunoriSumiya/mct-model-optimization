@@ -68,7 +68,7 @@ These techniques are essential for further optimizing models and achieving super
 
   | Tutorial                                                                            | Included Features       |
   |-------------------------------------------------------------------------------------|-------------------------|
-  | [wrapper](keras/example_keras_wrapper.ipynb) | &#x2705; wrapper |
+  | [Wrapper](keras/example_keras_wrapper.ipynb) | &#x2705; wrapper |
   
 </details>
 
@@ -129,7 +129,7 @@ These techniques are essential for further optimizing models and achieving super
 
   | Tutorial                                                                                       | Included Features |
   |------------------------------------------------------------------------------------------------|-------------------|
-  | [wrapper](pytorch/example_pytorch_wrapper.ipynb) | &#x2705; Debug    |
+  | [Wrapper](pytorch/example_pytorch_wrapper.ipynb) | &#x2705; Wrapper    |
   
 </details>
 
