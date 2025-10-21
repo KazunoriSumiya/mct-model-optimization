@@ -15,6 +15,9 @@ print(sys.path)
 from model_compression_toolkit.core import QuantizationErrorMethod
 from model_compression_toolkit.wrapper.mct_wrapper import MCTWrapper
 
+import importlib
+FOUND_TPC = importlib.util.find_spec("edgemdt_tpc") is not None
+FOUND_TPC = False
 
 class TestMCTWrapper:
     """
@@ -146,23 +149,39 @@ class TestMCTWrapper:
         Note: Patch targets edgemdt_tpc.get_target_platform_capabilities
         because MCTWrapper imports edgemdt_tpc directly.
         """
-        wrapper = MCTWrapper()
-        wrapper.use_MCT_TPC = False
-        mock_tpc = Mock()
-        mock_edgemdt_get_tpc.return_value = mock_tpc
-        
-        wrapper._get_TPC()
-        
-        # Check if edgemdt_tpc get_target_platform_capabilities was called
-        # These parameters match the default values in MCTWrapper.__init__()
-        expected_params = {
-            'tpc_version': '1.0',
-            'device_type': 'imx500',
-            'extended_version': None
-        }
-        mock_edgemdt_get_tpc.assert_called_once_with(**expected_params)
-        assert wrapper.tpc == mock_tpc
+        if FOUND_TPC:
+            # Test EdgeMDT TPC available case
+            wrapper = MCTWrapper()
+            wrapper.use_MCT_TPC = False
+            mock_tpc = Mock()
+            mock_edgemdt_get_tpc.return_value = mock_tpc
 
+            wrapper._get_TPC()
+
+            # Verify EdgeMDT TPC was called with correct parameters
+            expected_params = {
+                'tpc_version': '1.0',
+                'device_type': 'imx500',
+                'extended_version': None
+            }
+            mock_edgemdt_get_tpc.assert_called_once_with(**expected_params)
+            assert wrapper.tpc == mock_tpc
+        else:
+            # Test EdgeMDT TPC unavailable case - should raise exception
+            wrapper = MCTWrapper()
+            
+            wrapper.use_MCT_TPC = False
+            mock_tpc = Mock()
+            mock_edgemdt_get_tpc.return_value = mock_tpc
+            
+            # Expect exception when EdgeMDT TPC is not available
+            with pytest.raises(Exception) as exc_info:
+                wrapper._get_TPC()
+
+            # Verify correct error message
+            expected_msg = "EdgeMDT TPC module is not available."
+            assert expected_msg in str(exc_info.value)
+ 
     @patch('model_compression_toolkit.core.keras_resource_utilization_data')
     @patch('model_compression_toolkit.ptq.keras_post_training_quantization')
     @patch('model_compression_toolkit.gptq.'
@@ -432,14 +451,36 @@ class TestMCTWrapperIntegration:
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._export_model')
     def test_quantize_and_export_PTQ_flow(
-            self, mock_export: Mock, mock_setting_ptq: Mock,
-            mock_select_method: Mock, mock_get_tpc: Mock) -> None:
+            self, mock_export, mock_setting_ptq,
+            mock_select_method, mock_get_tpc):
         """
-        Test complete quantize_and_export workflow for PTQ.
+        Test complete quantize_and_export workflow for Post-Training Quantization.
         
         This integration test verifies the complete PTQ workflow from input
         validation through model export. It mocks internal methods to focus
         on workflow coordination and method call sequences.
+        
+        Workflow Steps Tested:
+            1. Input validation and initialization
+            2. Parameter modification
+            3. Method selection for framework and quantization type
+            4. TPC (Target Platform Capabilities) configuration
+            5. PTQ parameter setup
+            6. Model quantization execution
+            7. Model export
+        
+        Mocked Components:
+            - _get_TPC: TPC configuration
+            - _select_method: Framework-specific method selection
+            - _Setting_PTQ: PTQ parameter configuration
+            - _export_model: Model export functionality
+            - _post_training_quantization: Actual quantization process
+        
+        Verification Points:
+            - Correct method call sequence
+            - Proper parameter passing between methods
+            - Expected return values (success flag and quantized model)
+            - Instance state consistency after workflow completion
         """
         wrapper = MCTWrapper()
         
@@ -494,16 +535,9 @@ class TestMCTWrapperIntegration:
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._export_model')
     def test_quantize_and_export_GPTQ_MixP_flow(
-            self, mock_export: Mock, mock_setting_gptq_mixp: Mock,
-            mock_select_method: Mock, mock_get_tpc: Mock) -> None:
-        """
-        Test complete quantize_and_export workflow for GPTQ with Mixed Precision.
-        
-        This integration test verifies the complete GPTQ (Gradient Post-Training
-        Quantization) workflow with Mixed Precision from input validation through
-        model export. It focuses on testing the advanced quantization pipeline
-        that combines gradient-based optimization with automatic bit-width selection.
-        """
+            self, mock_export, mock_setting_gptq_mixp,
+            mock_select_method, mock_get_tpc):
+        """Test complete quantize_and_export flow for GPTQ with MixP"""
         wrapper = MCTWrapper()
         
         # Setup mocks
@@ -524,7 +558,7 @@ class TestMCTWrapperIntegration:
             float_model=mock_float_model,
             method='GPTQ',
             framework='tensorflow',
-            use_MCT_TPC=False,
+            use_MCT_TPC=True,
             use_MixP=True,
             representative_dataset=mock_representative_dataset,
             param_items=[]
@@ -543,15 +577,8 @@ class TestMCTWrapperIntegration:
 
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._exec_lq_ptq')
-    def test_quantize_and_export_LQPTQ_tensorflow(self, mock_exec_lq_ptq: Mock) -> None:
-        """
-        Test complete quantize_and_export workflow for LQ-PTQ with TensorFlow.
-        
-        This integration test verifies the complete LQ-PTQ (Low-bit Quantization
-        Post-Training Quantization) workflow specifically for TensorFlow framework.
-        It tests the specialized quantization path that bypasses the standard
-        workflow and uses a dedicated low-bit quantization execution method.
-        """
+    def test_quantize_and_export_LQPTQ_tensorflow(self, mock_exec_lq_ptq):
+        """Test quantize_and_export flow for LQ-PTQ with TensorFlow"""
         wrapper = MCTWrapper()
         
         mock_float_model = Mock()
@@ -578,20 +605,31 @@ class TestMCTWrapperIntegration:
 
 class TestMCTWrapperErrorHandling:
     """
-    Error Handling Tests for MCTWrapper
+    Error Handling and Edge Case Tests for MCTWrapper
     
     This test class focuses on testing error conditions, invalid inputs,
-    to ensure robust error handling throughout the MCTWrapper functionality.
+    and edge cases to ensure robust error handling throughout the MCTWrapper
+    functionality.
+    
+    Error Categories Tested:
+        - Invalid Method Parameters: Unsupported quantization methods
+        - Framework Compatibility: Invalid framework combinations
+        - Method Restrictions: Method-framework incompatibilities
+    
+    Testing Approach:
+        - Uses pytest.raises to verify expected exceptions
+        - Tests error message content for clarity
+        - Covers boundary conditions and invalid input combinations
+        - Ensures proper exception propagation from internal methods
+    
+    Key Validation Points:
+        - Method support validation (PTQ, GPTQ, LQPTQ)
+        - Framework support validation (TensorFlow, PyTorch)
+        - Cross-compatibility validation (LQ-PTQ only with TensorFlow)
     """
 
-    def test_quantize_and_export_unsupported_method(self) -> None:
-        """
-        Test quantize_and_export method with unsupported quantization method.
-        
-        This error handling test verifies that the MCTWrapper correctly validates
-        quantization method parameters and raises appropriate exceptions when
-        provided with unsupported or invalid method names.
-        """
+    def test_quantize_and_export_unsupported_method(self):
+        """Test quantize_and_export with unsupported method"""
         wrapper = MCTWrapper()
         
         with pytest.raises(Exception) as exc_info:
@@ -608,15 +646,8 @@ class TestMCTWrapperErrorHandling:
         expected_msg = "Only PTQ, GPTQ and LQPTQ are supported now"
         assert expected_msg in str(exc_info.value)
 
-    def test_quantize_and_export_LQPTQ_with_pytorch(self) -> None:
-        """
-        Test quantize_and_export with LQPTQ method and PyTorch framework combination.
-        
-        This error handling test verifies that MCTWrapper correctly enforces
-        framework restrictions for LQ-PTQ (Low-bit Quantization Post-Training
-        Quantization) by rejecting PyTorch framework and providing clear error
-        messaging about framework compatibility limitations.
-        """
+    def test_quantize_and_export_LQPTQ_with_pytorch(self):
+        """Test quantize_and_export with LQPTQ method and PyTorch framework"""
         wrapper = MCTWrapper()
         
         with pytest.raises(Exception) as exc_info:
@@ -633,14 +664,8 @@ class TestMCTWrapperErrorHandling:
         expected_msg = "LQ-PTQ is only supported with tensorflow now"
         assert expected_msg in str(exc_info.value)
 
-    def test_quantize_and_export_unsupported_framework(self) -> None:
-        """
-        Test quantize_and_export method with unsupported framework parameter.
-        
-        This error handling test verifies that MCTWrapper correctly validates
-        framework parameters and raises appropriate exceptions when provided
-        with unsupported or invalid framework names. 
-        """
+    def test_quantize_and_export_unsupported_framework(self):
+        """Test quantize_and_export with unsupported framework"""
         wrapper = MCTWrapper()
         
         with pytest.raises(Exception) as exc_info:

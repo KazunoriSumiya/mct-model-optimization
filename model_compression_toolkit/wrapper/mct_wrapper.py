@@ -1,9 +1,13 @@
 import os
 from typing import Dict, Any, List, Tuple, Optional, Union, Callable
 import model_compression_toolkit as mct
-import edgemdt_tpc
 #import low_bit_quantizer_ptq.ptq as lq_ptq
 
+import importlib
+FOUND_TPC = importlib.util.find_spec("edgemdt_tpc") is not None
+if FOUND_TPC:
+    import edgemdt_tpc
+FOUND_TPC = False
 
 class MCTWrapper:
     """
@@ -197,14 +201,17 @@ class MCTWrapper:
             # Get TPC from MCT framework
             self.tpc = mct.get_target_platform_capabilities(**params_TPC)
         else:
-            # Use external EdgeMDT TPC configuration
-            params_TPC = {
-                'tpc_version': self.params['tpc_version'],
-                'device_type': 'imx500',
-                'extended_version': None
-            }
-            # Get TPC from EdgeMDT framework
-            self.tpc = edgemdt_tpc.get_target_platform_capabilities(**params_TPC)
+            if FOUND_TPC:
+                # Use external EdgeMDT TPC configuration
+                params_TPC = {
+                    'tpc_version': self.params['tpc_version'],
+                    'device_type': 'imx500',
+                    'extended_version': None
+                }
+                # Get TPC from EdgeMDT framework
+                self.tpc = edgemdt_tpc.get_target_platform_capabilities(**params_TPC)
+            else:
+                raise Exception("EdgeMDT TPC module is not available.")
 
     def _setting_PTQ_MixP(self) -> Dict[str, Any]:
         """

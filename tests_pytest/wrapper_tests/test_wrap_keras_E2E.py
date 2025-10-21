@@ -24,6 +24,9 @@ import keras
 from keras.applications.mobilenet_v2 import MobileNetV2
 from typing import Callable, Generator, List, Any, Tuple
 
+
+
+
 # Import setup as needed
 import model_compression_toolkit as mct
 from model_compression_toolkit.core import QuantizationErrorMethod
