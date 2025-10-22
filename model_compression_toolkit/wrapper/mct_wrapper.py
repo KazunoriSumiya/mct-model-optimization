@@ -16,6 +16,7 @@
 import os
 from typing import Dict, Any, List, Tuple, Optional, Union, Callable
 import model_compression_toolkit as mct
+from model_compression_toolkit.wrapper import constants as wrapper_const
 #import low_bit_quantizer_ptq.ptq as lq_ptq
 
 import importlib
@@ -23,6 +24,7 @@ FOUND_TPC = importlib.util.find_spec("edgemdt_tpc") is not None
 if FOUND_TPC:
     import edgemdt_tpc
 FOUND_TPC = False
+
 
 class MCTWrapper:
     """
@@ -210,9 +212,9 @@ class MCTWrapper:
         if self.use_MCT_TPC:
             # Use MCT's built-in TPC configuration
             params_TPC = {
-                'fw_name': self.params['fw_name'],
-                'target_platform_name': 'imx500',
-                'target_platform_version': self.params['target_platform_version'],
+                wrapper_const.FW_NAME: self.params['fw_name'],
+                wrapper_const.TARGET_PLATFORM_NAME: 'imx500',
+                wrapper_const.TARGET_PLATFORM_VERSION: self.params['target_platform_version'],
             }
             # Get TPC from MCT framework
             self.tpc = mct.get_target_platform_capabilities(**params_TPC)
@@ -220,9 +222,9 @@ class MCTWrapper:
             if FOUND_TPC:
                 # Use external EdgeMDT TPC configuration
                 params_TPC = {
-                    'tpc_version': self.params['tpc_version'],
-                    'device_type': 'imx500',
-                    'extended_version': None
+                    wrapper_const.TPC_VERSION: self.params['tpc_version'],
+                    wrapper_const.DEVICE_TYPE: 'imx500',
+                    wrapper_const.EXTENDED_VERSION: None
                 }
                 # Get TPC from EdgeMDT framework
                 self.tpc = edgemdt_tpc.get_target_platform_capabilities(**params_TPC)
@@ -237,16 +239,16 @@ class MCTWrapper:
             dict: Parameter dictionary for PTQ.
         """
         params_MPCfg = {
-            'num_of_images': self.params['num_of_images'],
-            'use_hessian_based_scores': self.params['use_hessian_based_scores'],
+            wrapper_const.NUM_OF_IMAGES: self.params['num_of_images'],
+            wrapper_const.USE_HESSIAN_BASED_SCORES: self.params['use_hessian_based_scores'],
         }
         mixed_precision_config = mct.core.MixedPrecisionQuantizationConfig(**params_MPCfg)
         core_config = mct.core.CoreConfig(mixed_precision_config=mixed_precision_config)
         params_RUDCfg = {
-            'in_model': self.float_model,
-            'representative_data_gen': self.representative_dataset,
-            'core_config': core_config,
-            'target_platform_capabilities': self.tpc
+            wrapper_const.IN_MODEL: self.float_model,
+            wrapper_const.REPRESENTATIVE_DATA_GEN: self.representative_dataset,
+            wrapper_const.CORE_CONFIG: core_config,
+            wrapper_const.TARGET_PLATFORM_CAPABILITIES: self.tpc
         }
         ru_data = self.resource_utilization_data(**params_RUDCfg)
         weights_compression_ratio = (
@@ -256,15 +258,15 @@ class MCTWrapper:
             ru_data.weights_memory * weights_compression_ratio)
 
         params_PTQ = {
-            'in_model': self.float_model,
-            'representative_data_gen': self.representative_dataset,
-            'target_resource_utilization': resource_utilization,
-            'core_config': core_config,
-            'target_platform_capabilities': self.tpc
+            wrapper_const.IN_MODEL: self.float_model,
+            wrapper_const.REPRESENTATIVE_DATA_GEN: self.representative_dataset,
+            wrapper_const.TARGET_RESOURCE_UTILIZATION: resource_utilization,
+            wrapper_const.CORE_CONFIG: core_config,
+            wrapper_const.TARGET_PLATFORM_CAPABILITIES: self.tpc
         }
         if self.framework == 'pytorch':
-            params_PTQ['in_module'] = params_PTQ['in_model']
-            del params_PTQ['in_model']
+            params_PTQ[wrapper_const.IN_MODULE] = params_PTQ[wrapper_const.IN_MODEL]
+            del params_PTQ[wrapper_const.IN_MODEL]
         return params_PTQ
 
     def _setting_PTQ(self) -> Dict[str, Any]:
@@ -275,27 +277,27 @@ class MCTWrapper:
             dict: Parameter dictionary for PTQ.
         """
         params_QCfg = {
-            'activation_error_method': self.params['activation_error_method'],
-            'weights_error_method': mct.core.QuantizationErrorMethod.MSE,
-            'weights_bias_correction': self.params['weights_bias_correction'],
-            'z_threshold': self.params['z_threshold'],
-            'linear_collapsing': self.params['linear_collapsing'],
-            'residual_collapsing': self.params['residual_collapsing']
+            wrapper_const.ACTIVATION_ERROR_METHOD: self.params['activation_error_method'],
+            wrapper_const.WEIGHTS_ERROR_METHOD: mct.core.QuantizationErrorMethod.MSE,
+            wrapper_const.WEIGHTS_BIAS_CORRECTION: self.params['weights_bias_correction'],
+            wrapper_const.Z_THRESHOLD: self.params['z_threshold'],
+            wrapper_const.LINEAR_COLLAPSING: self.params['linear_collapsing'],
+            wrapper_const.RESIDUAL_COLLAPSING: self.params['residual_collapsing']
         }
         q_config = mct.core.QuantizationConfig(**params_QCfg)
         core_config = mct.core.CoreConfig(quantization_config=q_config)
         resource_utilization = None
 
         params_PTQ = {
-            'in_model': self.float_model,
-            'representative_data_gen': self.representative_dataset,
-            'target_resource_utilization': resource_utilization,
-            'core_config': core_config,
-            'target_platform_capabilities': self.tpc
+            wrapper_const.IN_MODEL: self.float_model,
+            wrapper_const.REPRESENTATIVE_DATA_GEN: self.representative_dataset,
+            wrapper_const.TARGET_RESOURCE_UTILIZATION: resource_utilization,
+            wrapper_const.CORE_CONFIG: core_config,
+            wrapper_const.TARGET_PLATFORM_CAPABILITIES: self.tpc
         }
         if self.framework == 'pytorch':
-            params_PTQ['in_module'] = params_PTQ['in_model']
-            del params_PTQ['in_model']
+            params_PTQ[wrapper_const.IN_MODULE] = params_PTQ[wrapper_const.IN_MODEL]
+            del params_PTQ[wrapper_const.IN_MODEL]
         return params_PTQ
 
     def _setting_GPTQ_MixP(self) -> Dict[str, Any]:
@@ -312,16 +314,16 @@ class MCTWrapper:
         gptq_config = self.get_gptq_config(**params_GPTQCfg)
 
         params_MPCfg = {
-            'num_of_images': self.params['num_of_images'],
-            'use_hessian_based_scores': self.params['use_hessian_based_scores'],
+            wrapper_const.NUM_OF_IMAGES: self.params['num_of_images'],
+            wrapper_const.USE_HESSIAN_BASED_SCORES: self.params['use_hessian_based_scores'],
         }
         mixed_precision_config = mct.core.MixedPrecisionQuantizationConfig(**params_MPCfg)
         core_config = mct.core.CoreConfig(mixed_precision_config=mixed_precision_config)
         params_RUDCfg = {
-            'in_model': self.float_model,
-            'representative_data_gen': self.representative_dataset,
-            'core_config': core_config,
-            'target_platform_capabilities': self.tpc
+            wrapper_const.IN_MODEL: self.float_model,
+            wrapper_const.REPRESENTATIVE_DATA_GEN: self.representative_dataset,
+            wrapper_const.CORE_CONFIG: core_config,
+            wrapper_const.TARGET_PLATFORM_CAPABILITIES: self.tpc
         }
         ru_data = self.resource_utilization_data(**params_RUDCfg)
         weights_compression_ratio = (
@@ -336,16 +338,16 @@ class MCTWrapper:
         )
 
         params_GPTQ = {
-            'in_model': self.float_model,
-            'representative_data_gen': self.representative_dataset,
-            'target_resource_utilization': resource_utilization,
-            'gptq_config': gptq_config,
-            'core_config': core_config,
-            'target_platform_capabilities': self.tpc
+            wrapper_const.IN_MODEL: self.float_model,
+            wrapper_const.REPRESENTATIVE_DATA_GEN: self.representative_dataset,
+            wrapper_const.TARGET_RESOURCE_UTILIZATION: resource_utilization,
+            wrapper_const.GPTQ_CONFIG: gptq_config,
+            wrapper_const.CORE_CONFIG: core_config,
+            wrapper_const.TARGET_PLATFORM_CAPABILITIES: self.tpc
         }
         if self.framework == 'pytorch':
-            params_GPTQ['model'] = params_GPTQ['in_model']
-            del params_GPTQ['in_model']
+            params_GPTQ[wrapper_const.MODEL] = params_GPTQ[wrapper_const.IN_MODEL]
+            del params_GPTQ[wrapper_const.IN_MODEL]
         return params_GPTQ
 
     def _setting_GPTQ(self) -> Dict[str, Any]:
@@ -362,14 +364,14 @@ class MCTWrapper:
         gptq_config = self.get_gptq_config(**params_GPTQCfg)
 
         params_GPTQ = {
-            'in_model': self.float_model,
-            'representative_data_gen': self.representative_dataset,
-            'gptq_config': gptq_config,
-            'target_platform_capabilities': self.tpc
+            wrapper_const.IN_MODEL: self.float_model,
+            wrapper_const.REPRESENTATIVE_DATA_GEN: self.representative_dataset,
+            wrapper_const.GPTQ_CONFIG: gptq_config,
+            wrapper_const.TARGET_PLATFORM_CAPABILITIES: self.tpc
         }
         if self.framework == 'pytorch':
-            params_GPTQ['model'] = params_GPTQ['in_model']
-            del params_GPTQ['in_model']
+            params_GPTQ[wrapper_const.MODEL] = params_GPTQ[wrapper_const.IN_MODEL]
+            del params_GPTQ[wrapper_const.IN_MODEL]
         return params_GPTQ
 
     def _exec_lq_ptq(self) -> Any:
