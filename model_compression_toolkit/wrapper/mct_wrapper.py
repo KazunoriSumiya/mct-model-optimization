@@ -199,6 +199,20 @@ class MCTWrapper:
                 # Use standard GPTQ parameter configuration
                 self._setting_PTQparam = self._setting_GPTQ
 
+    def select_argname(self) -> None:
+        """
+        Select argument names based on the framework and method.
+        """
+        if self.framework == 'tensorflow':
+            self.argname_in_module = wrapper_const.IN_MODEL
+        elif self.framework == 'pytorch':
+            self.argname_in_module = wrapper_const.IN_MODULE
+
+        if self.framework == 'tensorflow':
+            self.argname_model = wrapper_const.IN_MODEL
+        elif self.framework == 'pytorch':
+            self.argname_model = wrapper_const.MODEL
+
     def _get_TPC(self) -> None:
         """
         Configure Target Platform Capabilities (TPC) based on selected option.
@@ -258,15 +272,12 @@ class MCTWrapper:
             ru_data.weights_memory * weights_compression_ratio)
 
         params_PTQ = {
-            wrapper_const.IN_MODEL: self.float_model,
+            self.argname_in_module: self.float_model,
             wrapper_const.REPRESENTATIVE_DATA_GEN: self.representative_dataset,
             wrapper_const.TARGET_RESOURCE_UTILIZATION: resource_utilization,
             wrapper_const.CORE_CONFIG: core_config,
             wrapper_const.TARGET_PLATFORM_CAPABILITIES: self.tpc
         }
-        if self.framework == 'pytorch':
-            params_PTQ[wrapper_const.IN_MODULE] = params_PTQ[wrapper_const.IN_MODEL]
-            del params_PTQ[wrapper_const.IN_MODEL]
         return params_PTQ
 
     def _setting_PTQ(self) -> Dict[str, Any]:
@@ -289,15 +300,12 @@ class MCTWrapper:
         resource_utilization = None
 
         params_PTQ = {
-            wrapper_const.IN_MODEL: self.float_model,
+            self.argname_in_module: self.float_model,
             wrapper_const.REPRESENTATIVE_DATA_GEN: self.representative_dataset,
             wrapper_const.TARGET_RESOURCE_UTILIZATION: resource_utilization,
             wrapper_const.CORE_CONFIG: core_config,
             wrapper_const.TARGET_PLATFORM_CAPABILITIES: self.tpc
         }
-        if self.framework == 'pytorch':
-            params_PTQ[wrapper_const.IN_MODULE] = params_PTQ[wrapper_const.IN_MODEL]
-            del params_PTQ[wrapper_const.IN_MODEL]
         return params_PTQ
 
     def _setting_GPTQ_MixP(self) -> Dict[str, Any]:
@@ -338,16 +346,13 @@ class MCTWrapper:
         )
 
         params_GPTQ = {
-            wrapper_const.IN_MODEL: self.float_model,
+            self.argname_model: self.float_model,
             wrapper_const.REPRESENTATIVE_DATA_GEN: self.representative_dataset,
             wrapper_const.TARGET_RESOURCE_UTILIZATION: resource_utilization,
             wrapper_const.GPTQ_CONFIG: gptq_config,
             wrapper_const.CORE_CONFIG: core_config,
             wrapper_const.TARGET_PLATFORM_CAPABILITIES: self.tpc
         }
-        if self.framework == 'pytorch':
-            params_GPTQ[wrapper_const.MODEL] = params_GPTQ[wrapper_const.IN_MODEL]
-            del params_GPTQ[wrapper_const.IN_MODEL]
         return params_GPTQ
 
     def _setting_GPTQ(self) -> Dict[str, Any]:
@@ -364,14 +369,11 @@ class MCTWrapper:
         gptq_config = self.get_gptq_config(**params_GPTQCfg)
 
         params_GPTQ = {
-            wrapper_const.IN_MODEL: self.float_model,
+            self.argname_model: self.float_model,
             wrapper_const.REPRESENTATIVE_DATA_GEN: self.representative_dataset,
             wrapper_const.GPTQ_CONFIG: gptq_config,
             wrapper_const.TARGET_PLATFORM_CAPABILITIES: self.tpc
         }
-        if self.framework == 'pytorch':
-            params_GPTQ[wrapper_const.MODEL] = params_GPTQ[wrapper_const.IN_MODEL]
-            del params_GPTQ[wrapper_const.IN_MODEL]
         return params_GPTQ
 
     def _exec_lq_ptq(self) -> Any:
@@ -471,6 +473,8 @@ class MCTWrapper:
 
             # Step 4: Select framework-specific quantization methods
             self._select_method()
+            
+            self.select_argname()
 
             # Step 5: Configure Target Platform Capabilities
             self._get_TPC()
