@@ -63,9 +63,9 @@ class TestMCTWrapper:
         mock_model = Mock()
         mock_dataset = Mock()
         
-        wrapper._initialize_and_validate(
-            mock_model, 'PTQ', 'pytorch', True, False, mock_dataset)
-        
+        wrapper._initialize_and_validate(float_model=mock_model, method='PTQ', framework='pytorch', 
+                                         use_MCT_TPC=True, use_MixP=False, representative_dataset=mock_dataset)
+
         assert wrapper.float_model == mock_model
         assert wrapper.method == 'PTQ'
         assert wrapper.framework == 'pytorch'
@@ -85,9 +85,9 @@ class TestMCTWrapper:
         
         # Prepare test parameter items with existing keys
         param_items = [
-            ('n_epochs', 10, 'Number of epochs'),
-            ('learning_rate', 0.01, 'Learning rate'),
-            ('fw_name', 'tensorflow', 'Framework name')
+            ['n_epochs', 10, 'Number of epochs'],
+            ['learning_rate', 0.01, 'Learning rate'],
+            ['fw_name', 'tensorflow', 'Framework name']
         ]
         
         # Call _modify_params to update existing parameters
@@ -112,8 +112,8 @@ class TestMCTWrapper:
         
         # Prepare test parameter items with non-existing keys
         param_items = [
-            ('non_existing_key', 'value', 'Description'),
-            ('another_fake_key', 42, 'Another description')
+            ['non_existing_key', 'value', 'Description'],
+            ['another_fake_key', 42, 'Another description']
         ]
         
         # Call _modify_params
@@ -618,6 +618,7 @@ class TestMCTWrapperIntegration:
         assert success is True
         assert result_model == mock_quantized_model
 
+
 class TestMCTWrapperErrorHandling:
     """
     Error Handling and Edge Case Tests for MCTWrapper
@@ -696,7 +697,3 @@ class TestMCTWrapperErrorHandling:
         
         expected_msg = "Only tensorflow and pytorch are supported now"
         assert expected_msg in str(exc_info.value)
-
-
-if __name__ == '__main__':
-    pytest.main([__file__])
