@@ -330,7 +330,7 @@ class MCTWrapper:
         resource_utilization = mct.core.ResourceUtilization(
             ru_data.weights_memory * weights_compression_ratio)
 
-        config = mct.core.CoreConfig(
+        core_config = mct.core.CoreConfig(
             mixed_precision_config = mixed_precision_config,
             quantization_config = mct.core.QuantizationConfig(concat_threshold_update=True)
         )
@@ -340,7 +340,7 @@ class MCTWrapper:
             'representative_data_gen': self.representative_dataset,
             'target_resource_utilization': resource_utilization,
             'gptq_config': gptq_config,
-            'core_config': config,
+            'core_config': core_config,
             'target_platform_capabilities': self.tpc
         }
         if self.framework == 'pytorch':
