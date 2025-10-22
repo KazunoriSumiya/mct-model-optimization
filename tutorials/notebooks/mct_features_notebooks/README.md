@@ -63,15 +63,6 @@ These techniques are essential for further optimizing models and achieving super
   
 </details>
 
-<details id="keras-wrapper">
-  <summary>wrapper</summary>
-
-  | Tutorial                                                                            | Included Features       |
-  |-------------------------------------------------------------------------------------|-------------------------|
-  | [Wrapper](keras/example_keras_wrapper.ipynb) | &#x2705; wrapper |
-  
-</details>
-
 
 
 ### Pytorch Tutorials
@@ -122,14 +113,6 @@ These techniques are essential for further optimizing models and achieving super
   | Tutorial                                                                                       | Included Features |
   |------------------------------------------------------------------------------------------------|-------------------|
   | [Quantization Troubleshooting using the Xquant Feature](pytorch/example_pytorch_xquant.ipynb) | &#x2705; Debug    |
-  
-</details>
-<details id="pytorch-wrapper">
-  <summary>wrapper</summary>
-
-  | Tutorial                                                                                       | Included Features |
-  |------------------------------------------------------------------------------------------------|-------------------|
-  | [Wrapper](pytorch/example_pytorch_wrapper.ipynb) | &#x2705; Wrapper    |
   
 </details>
 
