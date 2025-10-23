@@ -202,6 +202,23 @@ class MCTWrapper:
     def select_argname(self) -> None:
         """
         Select argument names based on the framework and method.
+        
+        This method configures framework-specific parameter names used in 
+        quantization method calls. Different frameworks (TensorFlow/PyTorch) 
+        and methods (PTQ/GPTQ) require different parameter names for the same 
+        conceptual arguments.
+        
+        Sets:
+            argname_in_module: Parameter name for model input in PTQ methods
+                - TensorFlow: 'in_model' 
+                - PyTorch: 'in_module'
+            argname_model: Parameter name for model input in GPTQ methods
+                - TensorFlow: 'in_model'
+                - PyTorch: 'model'
+        
+        Note:
+            This method must be called after _select_method() and before 
+            calling any _setting_* methods that use these parameter names.
         """
         if self.framework == 'tensorflow':
             self.argname_in_module = wrapper_const.IN_MODEL
@@ -474,18 +491,19 @@ class MCTWrapper:
             # Step 4: Select framework-specific quantization methods
             self._select_method()
             
+            # Step 5: Select framework-specific argument names
             self.select_argname()
 
-            # Step 5: Configure Target Platform Capabilities
+            # Step 6: Configure Target Platform Capabilities
             self._get_TPC()
 
-            # Step 6: Prepare quantization parameters
+            # Step 7: Prepare quantization parameters
             params_PTQ = self._setting_PTQparam()
             
-            # Step 7: Execute quantization process (PTQ or GPTQ)
+            # Step 8: Execute quantization process (PTQ or GPTQ)
             quantized_model, _ = self._post_training_quantization(**params_PTQ)
 
-            # Step 8: Export quantized model to specified format
+            # Step 9: Export quantized model to specified format
             self._export_model(quantized_model)
 
             # Return success flag and quantized model
