@@ -21,9 +21,9 @@ from model_compression_toolkit.wrapper import constants as wrapper_const
 
 import importlib
 FOUND_TPC = importlib.util.find_spec("edgemdt_tpc") is not None
+FOUND_TPC = False
 if FOUND_TPC:
     import edgemdt_tpc
-FOUND_TPC = False
 
 
 class MCTWrapper:
