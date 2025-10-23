@@ -280,7 +280,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         method = 'PTQ'
         framework = 'pytorch'
         use_MCT_TPC = True  # Use custom target platform capabilities
-        use_MixP = False     # Disable mixed precision for standard PTQ
+        use_mixed_precision = False     # Disable mixed precision for standard PTQ
 
         # Define quantization parameters for optimal model performance
         param_items = [
@@ -299,7 +299,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         # Execute quantization using MCTWrapper and export to ONNX
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(
-            float_model, method, framework, use_MCT_TPC, use_MixP,
+            float_model, method, framework, use_MCT_TPC, use_mixed_precision,
             representative_dataset_gen, param_items)
         return flag, quantized_model
 
@@ -325,7 +325,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         method = 'PTQ'
         framework = 'pytorch'
         use_MCT_TPC = True  # Use custom target platform capabilities
-        use_MixP = True      # Enable mixed precision optimization
+        use_mixed_precision = True      # Enable mixed precision optimization
 
         # Define mixed precision quantization parameters
         param_items = [
@@ -341,7 +341,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         # Execute mixed precision quantization and export to ONNX
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(
-            float_model, method, framework, use_MCT_TPC, use_MixP,
+            float_model, method, framework, use_MCT_TPC, use_mixed_precision,
             representative_dataset_gen, param_items)
         return flag, quantized_model
 
@@ -368,7 +368,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         method = 'GPTQ'
         framework = 'pytorch'
         use_MCT_TPC = True  # Use custom target platform capabilities
-        use_MixP = False     # Disable mixed precision for standard GPTQ
+        use_mixed_precision = False     # Disable mixed precision for standard GPTQ
 
         # Define GPTQ-specific parameters for gradient-based optimization
         param_items = [
@@ -383,7 +383,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         # Execute gradient-based quantization and export to ONNX
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(
-            float_model, method, framework, use_MCT_TPC, use_MixP,
+            float_model, method, framework, use_MCT_TPC, use_mixed_precision,
             representative_dataset_gen, param_items)
         return flag, quantized_model
 
@@ -409,7 +409,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         method = 'GPTQ'
         framework = 'pytorch'
         use_MCT_TPC = True  # Use custom target platform capabilities
-        use_MixP = True      # Enable mixed precision for optimal accuracy
+        use_mixed_precision = True      # Enable mixed precision for optimal accuracy
 
         # Define GPTQ mixed precision parameters for advanced optimization
         param_items = [
@@ -427,7 +427,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         # Execute advanced GPTQ with mixed precision and export to ONNX
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(
-            float_model, method, framework, use_MCT_TPC, use_MixP,
+            float_model, method, framework, use_MCT_TPC, use_mixed_precision,
             representative_dataset_gen, param_items)
         return flag, quantized_model
 

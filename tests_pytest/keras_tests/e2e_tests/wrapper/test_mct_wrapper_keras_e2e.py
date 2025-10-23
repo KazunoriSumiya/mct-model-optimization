@@ -211,7 +211,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
         method = 'PTQ'
         framework = 'tensorflow'
         use_MCT_TPC = True
-        use_MixP = False
+        use_mixed_precision = False
 
         # Configure quantization parameters for optimal model performance
         param_items = [['tpc_version', '1.0', 'The version of the TPC to use.'],
@@ -226,7 +226,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
 
         # Execute quantization using MCTWrapper
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
-        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_MixP, representative_dataset_gen, param_items)
+        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_mixed_precision, representative_dataset_gen, param_items)
         return flag, quantized_model
 
     #########################################################################
@@ -243,7 +243,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
         method = 'PTQ'
         framework = 'tensorflow'
         use_MCT_TPC = True
-        use_MixP = True
+        use_mixed_precision = True
 
         # Configure mixed precision parameters for optimal compression
         param_items = [['tpc_version', '1.0', 'The version of the TPC to use.'],
@@ -256,7 +256,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
 
         # Execute quantization with mixed precision using MCTWrapper
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
-        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_MixP, representative_dataset_gen, param_items)
+        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_mixed_precision, representative_dataset_gen, param_items)
         return flag, quantized_model
 
     #########################################################################
@@ -273,7 +273,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
         method = 'GPTQ'
         framework = 'tensorflow'
         use_MCT_TPC = True
-        use_MixP = False
+        use_mixed_precision = False
 
         # Configure GPTQ-specific parameters for gradient-based optimization
         param_items = [['target_platform_version', 'v1', 'Target platform capabilities version.'],
@@ -285,7 +285,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
 
         # Execute gradient-based quantization using MCTWrapper
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
-        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_MixP, representative_dataset_gen, param_items)
+        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_mixed_precision, representative_dataset_gen, param_items)
         return flag, quantized_model
 
     #########################################################################
@@ -295,7 +295,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
         method = 'GPTQ'
         framework = 'tensorflow'
         use_MCT_TPC = True
-        use_MixP = True
+        use_mixed_precision = True
 
         param_items = [['target_platform_version', 'v1', 'Target platform capabilities version.'],
 
@@ -310,7 +310,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
                        ['save_model_path', './qmodel_GPTQ_Keras_MixP.tflite', 'Path to save the model.']]
 
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
-        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_MixP, representative_dataset_gen, param_items)
+        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_mixed_precision, representative_dataset_gen, param_items)
         return flag, quantized_model
 
     #########################################################################
@@ -320,7 +320,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
         method = 'LQPTQ'
         framework = 'tensorflow'
         use_MCT_TPC = True
-        use_MixP = False
+        use_mixed_precision = False
 
         param_items = [
 
@@ -333,7 +333,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
         # part as a NumPy array
         representative_dataset = dataset.take(1).get_single_element()[0].numpy()
         wrapper = mct.wrapper.wrap.MCTWrapper()
-        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_MixP, representative_dataset, param_items)
+        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_mixed_precision, representative_dataset, param_items)
         return flag, quantized_model
 
     # Execute the selected quantization method
