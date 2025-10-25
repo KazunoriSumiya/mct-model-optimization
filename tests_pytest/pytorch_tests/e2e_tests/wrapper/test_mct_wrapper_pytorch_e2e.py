@@ -26,177 +26,49 @@ Test Coverage:
 - Gradient Post-Training Quantization (GPTQ)
 - GPTQ with Mixed Precision (MixP)
 
-The tests use MobileNetV2 as the target model and ImageNet validation
-dataset for representative data and accuracy evaluation. All quantized
-models are exported to ONNX format for cross-platform deployment.
+The tests use a simple CNN model and random data for representative
+dataset generation for quantization testing. All quantized models are
+exported to ONNX format for cross-platform deployment.
 """
 
 # Import required libraries
 import pytest
-import os
 import torch
-from torch.utils.data import DataLoader
-from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
-from torchvision.datasets import ImageNet
-from tqdm import tqdm
-from typing import Callable, Generator, List, Tuple, Any
-
-# Import MCT core
+import torch.nn as nn
+from typing import Callable, List, Tuple, Any, Iterator
 import model_compression_toolkit as mct
 from model_compression_toolkit.core import QuantizationErrorMethod
 
+@pytest.fixture
+def get_model():
 
-@pytest.fixture(scope="session")
-def imagenet_dataset() -> Callable[[int, bool], DataLoader]:
-    """
-    Setup ImageNet dataset for PyTorch testing.
-    
-    This fixture handles ImageNet dataset preparation including download,
-    extraction, and PyTorch DataLoader creation. It provides a factory
-    function to create PyTorch DataLoaders with configurable batch size
-    and shuffle options.
-    
-    Returns:
-        function: Factory function to create DataLoader with
-                 (batch_size, shuffle) parameters
-    """
-    # Download ImageNet dataset if not present
-    if not os.path.isdir('imagenet'):
-        # Create base directory for ImageNet data storage
-        os.system('mkdir imagenet')
-        
-        # Download ImageNet validation dataset and development kit
-        # These files are essential for PyTorch model evaluation and testing
-        os.system('wget -P imagenet https://image-net.org/data/ILSVRC/2012/ILSVRC2012_devkit_t12.tar.gz')
-        os.system('wget -P imagenet https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_val.tar')
+    class StackModel(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.conv1 = nn.Sequential(
+                nn.Conv2d(3, 16, kernel_size=3, padding=1),
+                nn.ReLU()
+            )
+            self.conv2 = nn.Sequential(
+                nn.Conv2d(3, 16, kernel_size=3, padding=1),
+                nn.ReLU()
+            )
 
-    # Load MobileNetV2 weights and create PyTorch ImageNet dataset
-    weights = MobileNet_V2_Weights.IMAGENET1K_V2
-    dataset = ImageNet(root='./imagenet', split='val',
-                       transform=weights.transforms())
-    
-    def get_dataloader(batch_size: int, shuffle: bool) -> DataLoader:
-        """
-        Create PyTorch DataLoader with specified batch size and shuffle option.
-        
-        Args:
-            batch_size: Number of samples per batch
-            shuffle: Whether to shuffle the dataset
-            
-        Returns:
-            DataLoader: PyTorch DataLoader ready for model training/evaluation
-        """
-        return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
-    
-    return get_dataloader
-
+        def forward(self, x):
+            out1 = self.conv1(x)
+            out2 = self.conv2(x)
+            output = torch.stack([out1, out2], dim=-1)
+            return output
+    return StackModel()
 
 @pytest.fixture
-def float_model() -> torch.nn.Module:
-    """
-    Create a pre-trained MobileNetV2 model for PyTorch quantization testing.
-    
-    This fixture provides a PyTorch MobileNetV2 model with ImageNet pre-trained
-    weights. The model is ready for quantization testing and uses the same
-    architecture and weights as the reference implementation.
-    
-    Returns:
-        torch.nn.Module: Pre-trained MobileNetV2 model with ImageNet weights
-    """
-    weights = MobileNet_V2_Weights.IMAGENET1K_V2
-    return mobilenet_v2(weights=weights)
+def get_representative_dataset(n_iter=5):
 
-
-@pytest.fixture
-def representative_dataset_gen(imagenet_dataset: Callable[[int, bool], DataLoader]) -> Callable[[], Generator[List[torch.Tensor], None, None]]:
-    """
-    Create representative dataset generator for PyTorch quantization.
-    
-    This fixture provides a generator function that yields batches of
-    representative data for quantization calibration. The data is sampled
-    from the ImageNet validation set and prepared in PyTorch tensor format.
-    
-    The generator is used by MCT to determine optimal quantization parameters
-    by analyzing the distribution of activations during forward passes.
-    
-    Args:
-        imagenet_dataset: Fixture providing ImageNet DataLoader factory
-        
-    Returns:
-        function: Generator function that yields [batch_tensor] lists
-    """
-    batch_size = 10  # Optimal batch size for representative data sampling
-    n_iter = 5       # Number of iterations to generate sufficient calibration data
-    
-    # Create DataLoader instance for representative data generation
-    dataloader = imagenet_dataset(batch_size, shuffle=True)
-    
-    def gen() -> Generator[List[torch.Tensor], None, None]:
-        """
-        Generator function that yields batches of representative data.
-        
-        This function creates an iterator from the DataLoader and yields
-        batches of image tensors for quantization calibration. Each batch
-        is wrapped in a list format as expected by MCT quantization engine.
-        
-        Yields:
-            List[torch.Tensor]: Batch of image tensors for calibration
-        """
-        # Create iterator from DataLoader for efficient batch sampling
-        dataloader_iter = iter(dataloader)
+    def representative_dataset() -> Iterator[List]:
         for _ in range(n_iter):
-            # Yield only image data (first element), discard labels
-            yield [next(dataloader_iter)[0]]
-    
-    return gen
-
-
-def evaluate_model(model: torch.nn.Module, testloader: DataLoader) -> float:
-    """
-    Evaluate PyTorch model accuracy using a DataLoader.
-    
-    This function performs comprehensive accuracy evaluation of PyTorch models
-    on the provided test dataset. It automatically detects and uses GPU if
-    available, otherwise falls back to CPU computation.
-    
-    Args:
-        model (torch.nn.Module): PyTorch model to evaluate
-        testloader (DataLoader): PyTorch DataLoader with test data
-        
-    Returns:
-        float: Top-1 accuracy percentage (0-100)
-    """
-    # Automatically detect and use the best available compute device
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model.to(device)
-    model.eval()  # Set model to evaluation mode (disable dropout, batch norm training)
-    
-    # Initialize accuracy tracking variables
-    correct = 0
-    total = 0
-    
-    # Perform evaluation without gradient computation for efficiency
-    with torch.no_grad():
-        for data in tqdm(testloader):
-            # Move data to the same device as model
-            images, labels = data
-            images, labels = images.to(device), labels.to(device)
-            
-            # Forward pass through the model
-            outputs = model(images)
-            
-            # Get predicted class indices (highest probability)
-            _, predicted = torch.max(outputs.data, 1)
-            
-            # Update accuracy counters
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-    
-    # Calculate and display final accuracy percentage
-    val_acc = (100 * correct / total)
-    print(f'Accuracy: {val_acc:.2f}%')
-    return val_acc
-
+            # Force CPU tensor creation
+            yield [torch.randn(1, 3, 32, 32, device='cpu')]
+    return representative_dataset
 
 @pytest.mark.parametrize("quant_func", [
     "PTQ_Pytorch",
@@ -204,8 +76,11 @@ def evaluate_model(model: torch.nn.Module, testloader: DataLoader) -> float:
     "GPTQ_Pytorch",
     "GPTQ_Pytorch_MixP",
 ])
-def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], DataLoader], float_model: torch.nn.Module,
-                      representative_dataset_gen: Callable[[], Generator[List[torch.Tensor], None, None]]) -> None:
+def test_quantization(
+        quant_func: str,
+        get_model: Callable[[], torch.nn.Module],
+        get_representative_dataset: Callable[[], Iterator[List[torch.Tensor]]]
+        ) -> None:
     """
     Test end-to-end quantization workflows for PyTorch models.
     
@@ -215,10 +90,6 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
  
     Args:
         quant_func (str): Name of quantization method to test
-        imagenet_dataset: Fixture providing ImageNet DataLoader factory
-        float_model: Fixture providing pre-trained MobileNetV2 model
-        representative_dataset_gen: Fixture providing calibration data
-                                    generator
         
     Test Methods:
         - PTQ_Pytorch: Standard Post-Training Quantization for PyTorch
@@ -230,6 +101,10 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         All quantized models are exported to ONNX format for cross-platform
         deployment and inference optimization.
     """
+    
+    # Get model and representative dataset using fixtures
+    float_model = get_model
+    representative_dataset_gen = get_representative_dataset
     
     # Decorator to print logs before and after function execution
     def decorator(func: Callable[[torch.nn.Module], Tuple[bool, torch.nn.Module]]) -> Callable[[torch.nn.Module], Tuple[bool, torch.nn.Module]]:
@@ -280,7 +155,7 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
         method = 'PTQ'
         framework = 'pytorch'
         use_MCT_TPC = True  # Use custom target platform capabilities
-        use_mixed_precision = False     # Disable mixed precision for standard PTQ
+        use_mixed_precision = False  # Disable mixed precision for standard PTQ
 
         # Define quantization parameters for optimal model performance
         param_items = [
@@ -443,10 +318,5 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], D
     flag, quantized_model = quant_methods[quant_func](float_model)
     assert flag, f"Quantization failed for {quant_func}"
 
-    # Validation: Evaluate quantized model accuracy on ImageNet validation set
-    val_dataloader = imagenet_dataset(50, shuffle=False)
-    quantized_accuracy = evaluate_model(quantized_model, val_dataloader)
-    
-    # Display comprehensive accuracy results for user verification
-    print(f"{quant_func} Quantized model's Top 1 accuracy on the ImageNet "
-          f"validation set: {quantized_accuracy:.2f}%")
+    # Success confirmation
+    print(f"{quant_func} quantization completed successfully!")

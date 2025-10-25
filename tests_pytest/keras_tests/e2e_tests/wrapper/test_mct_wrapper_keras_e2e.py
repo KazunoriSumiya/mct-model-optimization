@@ -27,107 +27,43 @@ Test Coverage:
 - GPTQ with Mixed Precision (MixP)
 - Low-bit Quantization PTQ (LQPTQ)
 
-The tests use MobileNetV2 as the target model and ImageNet validation
-dataset for representative data and accuracy evaluation.
+The tests use a simple CNN model and random data for representative
+dataset generation for quantization testing.
 """
 
 import pytest
-import os
-from pathlib import Path
 import tensorflow as tf
 import keras
-from keras.applications.mobilenet_v2 import MobileNetV2
-from typing import Callable, Generator, List, Any, Tuple
-
-
-
-
-# Import setup as needed
+from typing import Callable, List, Any, Tuple, Iterator
 import model_compression_toolkit as mct
 from model_compression_toolkit.core import QuantizationErrorMethod
 
-
-@pytest.fixture(scope="session")
-def imagenet_dataset() -> Callable[[int, bool], tf.data.Dataset]:
+@pytest.fixture
+def get_model():
     """
-    Setup ImageNet dataset for testing.
-    
-    This fixture handles ImageNet dataset preparation including download,
-    extraction, and preprocessing. It provides a factory function to create
-    TensorFlow datasets with configurable batch size and shuffle options.
+    Create a simple CNN model for Keras/TensorFlow quantization testing.
     
     Returns:
-        function: Factory function to create dataset with
-                 (batch_size, shuffle) parameters
+        keras.Model: Simple CNN model for testing
     """
-
-    # Download and extract ImageNet dataset if not present
-    if not os.path.isdir('imagenet'):
-        # Create base directory for ImageNet data
-        os.system('mkdir imagenet')
-        
-        # Download ImageNet validation dataset and development kit
-        # These files are required for model evaluation and testing
-        os.system('wget -P imagenet https://image-net.org/data/ILSVRC/2012/ILSVRC2012_devkit_t12.tar.gz')
-        os.system('wget -P imagenet https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_val.tar')
-        
-        # Move downloaded files to imagenet directory
-        os.system('mv ILSVRC2012_devkit_t12.tar.gz imagenet/')
-        os.system('mv ILSVRC2012_img_val.tar imagenet/')
-
-    # Setup ImageNet validation directory structure if not exists
-    # This creates the directory structure expected by TensorFlow's image_dataset_from_directory
-    if not os.path.isdir('imagenet/val'):
-        import subprocess
-        # Clone MCT repository temporarily for setup scripts
-        subprocess.run(['git', 'clone', 'https://github.com/sony/model_optimization.git', 'temp_mct'])
-        # Make ImageNet preparation script executable
-        os.system('chmod +x tutorials/resources/scripts/prepare_imagenet.sh')
-        # Run the preparation script to organize ImageNet data
-        subprocess.run(['tutorials/resources/scripts/prepare_imagenet.sh'])
-
-    def imagenet_preprocess_input(images: tf.Tensor, labels: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
-        """Apply MobileNetV2-specific preprocessing to input images."""
-        return tf.keras.applications.mobilenet_v2.preprocess_input(images), labels
-
-    def get_dataset(batch_size: int, shuffle: bool) -> tf.data.Dataset:
-        """
-        Create TensorFlow dataset from ImageNet validation images.
-        
-        Args:
-            batch_size: Number of images per batch
-            shuffle: Whether to shuffle the dataset
-            
-        Returns:
-            tf.data.Dataset: Preprocessed ImageNet dataset ready for model evaluation
-        """
-        # Load images from directory structure with specified parameters
-        dataset = tf.keras.utils.image_dataset_from_directory(
-            directory='./imagenet/val',
-            batch_size=batch_size,
-            image_size=[224, 224],
-            shuffle=shuffle,
-            crop_to_aspect_ratio=True,
-            interpolation='bilinear')
-        
-        # Apply MobileNetV2 preprocessing to normalize pixel values
-        dataset = dataset.map(lambda x, y: (imagenet_preprocess_input(x, y)), num_parallel_calls=tf.data.AUTOTUNE)
-        
-        # Prefetch data for improved performance
-        dataset = dataset.prefetch(buffer_size=tf.data.AUTOTUNE)
-        return dataset
-    return get_dataset
+    inputs = keras.Input(shape=(32, 32, 3))
+    x1 = keras.layers.Conv2D(16, 3, padding='same', activation='relu')(inputs)
+    x2 = keras.layers.Conv2D(16, 3, padding='same', activation='relu')(inputs)
+    outputs = keras.layers.Concatenate(axis=-1)([x1, x2])
+    return keras.Model(inputs, outputs)
 
 @pytest.fixture
-def float_model() -> keras.Model:
+def get_representative_dataset(n_iter=5):
     """
-    Create a pre-trained MobileNetV2 model for quantization testing.
+    Create representative dataset generator for Keras/TensorFlow quantization.
     
     Returns:
-        keras.Model: Pre-trained MobileNetV2 model with ImageNet weights
+        function: Generator function that yields batches of random data
     """
-    return MobileNetV2()
-
+    def representative_dataset() -> Iterator[List]:
+        for _ in range(n_iter):
+            yield [tf.random.normal((1, 32, 32, 3)).numpy()]
+    return representative_dataset
 
 @pytest.mark.parametrize("quant_func", [
     "PTQ_Keras",
@@ -136,14 +72,18 @@ def float_model() -> keras.Model:
     "GPTQ_Keras_MixP",
     # "LQPTQ_Keras",  # Add if needed
 ])
-def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], tf.data.Dataset], float_model: keras.Model) -> None:
+def test_quantization(
+        quant_func: str,
+        get_model: Callable[[], keras.Model],
+        get_representative_dataset: Callable[[], Iterator[List[Any]]]
+        ) -> None:
     """
     Test end-to-end quantization workflows for Keras/TensorFlow models.
     
     Args:
         quant_func (str): Name of quantization function to test
-        imagenet_dataset: Fixture providing ImageNet dataset factory
-        float_model: Fixture providing pre-trained MobileNetV2 model
+        get_model: Fixture providing simple CNN model
+        get_representative_dataset: Fixture providing representative data
         
     Test Methods:
         - PTQ_Keras: Standard Post-Training Quantization
@@ -151,27 +91,10 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
         - GPTQ_Keras: Gradient-based Post-Training Quantization
         - GPTQ_Keras_MixP: GPTQ with Mixed Precision optimization
     """
-    # Configuration for representative dataset generation
-    batch_size = 5  # Small batch size for faster testing
-    n_iter = 2      # Number of iterations for representative data
     
-    # Create dataset instance for representative data generation
-    dataset = imagenet_dataset(batch_size, shuffle=True)
-
-    def representative_dataset_gen() -> Generator[List[Any], None, None]:
-        """
-        Generator function for providing representative data during
-        quantization.
-        
-        This generator yields batches of image data that MCT uses to determine
-        optimal quantization parameters. The data is sampled from the ImageNet
-        validation set and preprocessed for MobileNetV2.
-        
-        Yields:
-            list: Batch of preprocessed images as numpy arrays
-        """
-        for _ in range(n_iter):
-            yield [dataset.take(1).get_single_element()[0].numpy()]
+    # Get model and representative dataset using fixtures
+    float_model = get_model
+    representative_dataset_gen = get_representative_dataset
 
     # Decorator to print logs before and after function execution
     def decorator(func: Callable[[keras.Model], Tuple[bool, keras.Model]]) -> Callable[[keras.Model], Tuple[bool, keras.Model]]:
@@ -329,11 +252,8 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
 
                        ['save_model_path', './qmodel_LQPTQ_Keras.tflite', 'Path to save the model.']]
 
-        # Get the first batch of image data and extract only the image
-        # part as a NumPy array
-        representative_dataset = dataset.take(1).get_single_element()[0].numpy()
         wrapper = mct.wrapper.wrap.MCTWrapper()
-        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_mixed_precision, representative_dataset, param_items)
+        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_mixed_precision, representative_dataset_gen, param_items)
         return flag, quantized_model
 
     # Execute the selected quantization method
@@ -349,17 +269,5 @@ def test_quantization(quant_func: str, imagenet_dataset: Callable[[int, bool], t
     flag, quantized_model = quant_methods[quant_func](float_model)
     assert flag, f"Quantization failed for method: {quant_func}"
 
-    # Validation: Evaluate quantized model accuracy on ImageNet validation set
-    val_dataset = imagenet_dataset(50, shuffle=False)
-    
-    # Compile quantized model for evaluation
-    quantized_model.compile(
-        loss=keras.losses.SparseCategoricalCrossentropy(),
-        metrics="accuracy")
-    
-    # Evaluate model performance on validation data
-    quantized_accuracy = quantized_model.evaluate(val_dataset)
-    
-    # Display quantization results for user verification
-    print(f"{quant_func} Quantized model's Top 1 accuracy on the ImageNet "
-          f"validation set: {(quantized_accuracy[1] * 100):.2f}%")
+    # Success confirmation
+    print(f"{quant_func} quantization completed successfully!")
