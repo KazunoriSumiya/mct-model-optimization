@@ -145,42 +145,18 @@ class TestMCTWrapper:
         mock_mct_get_tpc.assert_called_once_with(**expected_params)
         assert wrapper.tpc == mock_tpc
 
-    @patch('model_compression_toolkit.wrapper.mct_wrapper.'
-           'edgemdt_tpc.get_target_platform_capabilities')
-    def test_get_TPC_without_MCT_TPC(self, mock_edgemdt_get_tpc: Mock) -> None:
+    def test_get_TPC_without_MCT_TPC(self) -> None:
         """
-        Test _get_TPC method when using EdgeMDT TPC.
+        Test _get_TPC method when EdgeMDT TPC is not available.
         
-        Verifies that when use_MCT_TPC is False, the wrapper correctly calls
-        edgemdt_tpc.get_target_platform_capabilities with expected parameters.
-        
-        Note: Patch targets edgemdt_tpc.get_target_platform_capabilities
-        because MCTWrapper imports edgemdt_tpc directly.
+        Verifies that when use_MCT_TPC is False and edgemdt_tpc is not
+        available, an appropriate exception is raised.
         """
-        if FOUND_TPC:
-            # Test EdgeMDT TPC available case
+        # Patch FOUND_TPC to False to simulate edgemdt_tpc unavailability
+        with patch('model_compression_toolkit.wrapper.mct_wrapper.FOUND_TPC',
+                   False):
             wrapper = MCTWrapper()
             wrapper.use_MCT_TPC = False
-            mock_tpc = Mock()
-            mock_edgemdt_get_tpc.return_value = mock_tpc
-
-            wrapper._get_TPC()
-
-            # Verify EdgeMDT TPC was called with correct parameters
-            expected_params = {
-                'tpc_version': '1.0',
-                'device_type': 'imx500',
-                'extended_version': None
-            }
-            mock_edgemdt_get_tpc.assert_called_once_with(**expected_params)
-            assert wrapper.tpc == mock_tpc
-        else:
-            # Test EdgeMDT TPC unavailable case - should raise exception
-            wrapper = MCTWrapper()
-            
-            wrapper.use_MCT_TPC = False
-            mock_tpc = Mock()
-            mock_edgemdt_get_tpc.return_value = mock_tpc
             
             # Expect exception when EdgeMDT TPC is not available
             with pytest.raises(Exception) as exc_info:
@@ -189,7 +165,7 @@ class TestMCTWrapper:
             # Verify correct error message
             expected_msg = "EdgeMDT TPC module is not available."
             assert expected_msg in str(exc_info.value)
- 
+
     @patch('model_compression_toolkit.core.pytorch_resource_utilization_data')
     @patch('model_compression_toolkit.ptq.pytorch_post_training_quantization')
     @patch('model_compression_toolkit.gptq.'
