@@ -53,7 +53,7 @@ class MCTWrapper:
         float_model: The input float precision model
         method (str): Selected quantization method ('PTQ', 'GPTQ', 'LQPTQ')
         framework (str): Target framework ('tensorflow', 'pytorch')
-        use_MCT_TPC (bool): Whether to use MCT's built-in TPC
+        use_internal_tpc (bool): Whether to use MCT's built-in TPC
         use_mixed_precision (bool): Whether to use mixed-precision quantization
         representative_dataset: Calibration dataset for quantization
         tpc: Target Platform Capabilities configuration
@@ -99,7 +99,7 @@ class MCTWrapper:
 
     def _initialize_and_validate(self, float_model: Any, method: str = 'PTQ',
                                  framework: str = 'pytorch',
-                                 use_MCT_TPC: bool = True,
+                                 use_internal_tpc: bool = True,
                                  use_mixed_precision: bool = False,
                                  representative_dataset: Any = None) -> None:
         """
@@ -109,7 +109,7 @@ class MCTWrapper:
             float_model: The float model to be quantized.
             method (str): Quantization method ('PTQ', 'GPTQ', 'LQPTQ').
             framework (str): Target framework ('tensorflow', 'pytorch').
-            use_MCT_TPC (bool): Whether to use MCT's built-in TPC.
+            use_internal_tpc (bool): Whether to use MCT's built-in TPC.
             use_mixed_precision (bool): Whether to use mixed-precision quantization.
             representative_dataset: Representative dataset for calibration.
 
@@ -128,7 +128,7 @@ class MCTWrapper:
         self.float_model = float_model
         self.method = method
         self.framework = framework
-        self.use_MCT_TPC = use_MCT_TPC
+        self.use_internal_tpc = use_internal_tpc
         self.use_mixed_precision = use_mixed_precision
         self.representative_dataset = representative_dataset
 
@@ -249,7 +249,7 @@ class MCTWrapper:
         Note:
             This method sets self.tpc attribute with the configured TPC object.
         """
-        if self.use_MCT_TPC:
+        if self.use_internal_tpc:
             # Use MCT's built-in TPC configuration
             params_TPC = {
                 FW_NAME: self.params['fw_name'],
@@ -449,7 +449,7 @@ class MCTWrapper:
         self.export_model(**params_Export)
 
     def quantize_and_export(self, float_model: Any, method: str, framework: str,
-                            use_MCT_TPC: bool, use_mixed_precision: bool,
+                            use_internal_tpc: bool, use_mixed_precision: bool,
                             representative_dataset: Any,
                             param_items: List[List[Any]]) -> None:
         """
@@ -459,7 +459,7 @@ class MCTWrapper:
             float_model: The float model to be quantized.
             method (str): Quantization method, e.g., 'PTQ' or 'GPTQ' or 'LQ=PTQ
             framework (str): 'tensorflow' or 'pytorch'.
-            use_MCT_TPC (bool): Whether to use MCT_TPC.
+            use_internal_tpc (bool): Whether to use MCT_TPC.
             use_mixed_precision (bool): Whether to use mixed-precision
                 quantization.
             representative_dataset: Representative dataset for calibration.
@@ -471,7 +471,7 @@ class MCTWrapper:
         try:
             # Step 1: Initialize and validate all input parameters
             self._initialize_and_validate(
-                float_model, method, framework, use_MCT_TPC,
+                float_model, method, framework, use_internal_tpc,
                 use_mixed_precision, representative_dataset)
 
             # Step 2: Apply custom parameter modifications

@@ -154,7 +154,7 @@ def test_quantization(
         # Configure quantization method and framework settings
         method = 'PTQ'
         framework = 'pytorch'
-        use_MCT_TPC = True  # Use custom target platform capabilities
+        use_internal_tpc = True  # Use custom target platform capabilities
         use_mixed_precision = False  # Disable mixed precision for standard PTQ
 
         # Define quantization parameters for optimal model performance
@@ -174,7 +174,7 @@ def test_quantization(
         # Execute quantization using MCTWrapper and export to ONNX
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(
-            float_model, method, framework, use_MCT_TPC, use_mixed_precision,
+            float_model, method, framework, use_internal_tpc, use_mixed_precision,
             representative_dataset_gen, param_items)
         return flag, quantized_model
 
@@ -199,7 +199,7 @@ def test_quantization(
         # Configure quantization method with mixed precision enabled
         method = 'PTQ'
         framework = 'pytorch'
-        use_MCT_TPC = True  # Use custom target platform capabilities
+        use_internal_tpc = True  # Use custom target platform capabilities
         use_mixed_precision = True      # Enable mixed precision optimization
 
         # Define mixed precision quantization parameters
@@ -216,7 +216,7 @@ def test_quantization(
         # Execute mixed precision quantization and export to ONNX
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(
-            float_model, method, framework, use_MCT_TPC, use_mixed_precision,
+            float_model, method, framework, use_internal_tpc, use_mixed_precision,
             representative_dataset_gen, param_items)
         return flag, quantized_model
 
@@ -242,7 +242,7 @@ def test_quantization(
         # Configure gradient-based quantization method
         method = 'GPTQ'
         framework = 'pytorch'
-        use_MCT_TPC = True  # Use custom target platform capabilities
+        use_internal_tpc = True  # Use custom target platform capabilities
         use_mixed_precision = False     # Disable mixed precision for standard GPTQ
 
         # Define GPTQ-specific parameters for gradient-based optimization
@@ -258,7 +258,7 @@ def test_quantization(
         # Execute gradient-based quantization and export to ONNX
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(
-            float_model, method, framework, use_MCT_TPC, use_mixed_precision,
+            float_model, method, framework, use_internal_tpc, use_mixed_precision,
             representative_dataset_gen, param_items)
         return flag, quantized_model
 
@@ -283,7 +283,7 @@ def test_quantization(
         # Configure gradient-based quantization with mixed precision
         method = 'GPTQ'
         framework = 'pytorch'
-        use_MCT_TPC = True  # Use custom target platform capabilities
+        use_internal_tpc = True  # Use custom target platform capabilities
         use_mixed_precision = True      # Enable mixed precision for optimal accuracy
 
         # Define GPTQ mixed precision parameters for advanced optimization
@@ -302,7 +302,7 @@ def test_quantization(
         # Execute advanced GPTQ with mixed precision and export to ONNX
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(
-            float_model, method, framework, use_MCT_TPC, use_mixed_precision,
+            float_model, method, framework, use_internal_tpc, use_mixed_precision,
             representative_dataset_gen, param_items)
         return flag, quantized_model
 

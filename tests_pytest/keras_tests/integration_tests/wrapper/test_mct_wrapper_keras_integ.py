@@ -103,7 +103,7 @@ class TestMCTWrapperIntegration:
             float_model=mock_float_model,
             method='PTQ',
             framework='tensorflow',
-            use_MCT_TPC=True,
+            use_internal_tpc=True,
             use_mixed_precision=False,
             representative_dataset=mock_representative_dataset,
             param_items=param_items
@@ -160,7 +160,7 @@ class TestMCTWrapperIntegration:
             float_model=mock_float_model,
             method='GPTQ',
             framework='tensorflow',
-            use_MCT_TPC=True,
+            use_internal_tpc=True,
             use_mixed_precision=True,
             representative_dataset=mock_representative_dataset,
             param_items=[]
@@ -195,7 +195,7 @@ class TestMCTWrapperIntegration:
             float_model=mock_float_model,
             method='LQPTQ',
             framework='tensorflow',
-            use_MCT_TPC=True,
+            use_internal_tpc=True,
             use_mixed_precision=False,
             representative_dataset=mock_representative_dataset,
             param_items=[]

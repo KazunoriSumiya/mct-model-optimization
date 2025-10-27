@@ -133,7 +133,7 @@ def test_quantization(
         # Quantization method configuration
         method = 'PTQ'
         framework = 'tensorflow'
-        use_MCT_TPC = True
+        use_internal_tpc = True
         use_mixed_precision = False
 
         # Configure quantization parameters for optimal model performance
@@ -149,7 +149,7 @@ def test_quantization(
 
         # Execute quantization using MCTWrapper
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
-        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_mixed_precision, representative_dataset_gen, param_items)
+        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_internal_tpc, use_mixed_precision, representative_dataset_gen, param_items)
         return flag, quantized_model
 
     #########################################################################
@@ -165,7 +165,7 @@ def test_quantization(
         # Quantization method configuration
         method = 'PTQ'
         framework = 'tensorflow'
-        use_MCT_TPC = True
+        use_internal_tpc = True
         use_mixed_precision = True
 
         # Configure mixed precision parameters for optimal compression
@@ -179,7 +179,7 @@ def test_quantization(
 
         # Execute quantization with mixed precision using MCTWrapper
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
-        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_mixed_precision, representative_dataset_gen, param_items)
+        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_internal_tpc, use_mixed_precision, representative_dataset_gen, param_items)
         return flag, quantized_model
 
     #########################################################################
@@ -195,7 +195,7 @@ def test_quantization(
         # Quantization method configuration
         method = 'GPTQ'
         framework = 'tensorflow'
-        use_MCT_TPC = True
+        use_internal_tpc = True
         use_mixed_precision = False
 
         # Configure GPTQ-specific parameters for gradient-based optimization
@@ -208,7 +208,7 @@ def test_quantization(
 
         # Execute gradient-based quantization using MCTWrapper
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
-        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_mixed_precision, representative_dataset_gen, param_items)
+        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_internal_tpc, use_mixed_precision, representative_dataset_gen, param_items)
         return flag, quantized_model
 
     #########################################################################
@@ -217,7 +217,7 @@ def test_quantization(
     def GPTQ_Keras_mixed_precision(float_model: keras.Model) -> Tuple[bool, keras.Model]:
         method = 'GPTQ'
         framework = 'tensorflow'
-        use_MCT_TPC = True
+        use_internal_tpc = True
         use_mixed_precision = True
 
         param_items = [['target_platform_version', 'v1', 'Target platform capabilities version.'],
@@ -233,7 +233,7 @@ def test_quantization(
                        ['save_model_path', './qmodel_GPTQ_Keras_mixed_precision.tflite', 'Path to save the model.']]
 
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
-        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_mixed_precision, representative_dataset_gen, param_items)
+        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_internal_tpc, use_mixed_precision, representative_dataset_gen, param_items)
         return flag, quantized_model
 
     #########################################################################
@@ -242,7 +242,7 @@ def test_quantization(
     def LQPTQ_Keras(float_model: keras.Model) -> Tuple[bool, keras.Model]:
         method = 'LQPTQ'
         framework = 'tensorflow'
-        use_MCT_TPC = True
+        use_internal_tpc = True
         use_mixed_precision = False
 
         param_items = [
@@ -253,7 +253,7 @@ def test_quantization(
                        ['save_model_path', './qmodel_LQPTQ_Keras.tflite', 'Path to save the model.']]
 
         wrapper = mct.wrapper.wrap.MCTWrapper()
-        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_mixed_precision, representative_dataset_gen, param_items)
+        flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_internal_tpc, use_mixed_precision, representative_dataset_gen, param_items)
         return flag, quantized_model
 
     # Execute the selected quantization method

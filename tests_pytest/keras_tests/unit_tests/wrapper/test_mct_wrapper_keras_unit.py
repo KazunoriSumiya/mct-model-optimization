@@ -57,12 +57,12 @@ class TestMCTWrapper:
         mock_dataset = Mock()
         
         wrapper._initialize_and_validate(float_model=mock_model, method='PTQ', framework='tensorflow', 
-                                         use_MCT_TPC=True, use_mixed_precision=False, representative_dataset=mock_dataset)
+                                         use_internal_tpc=True, use_mixed_precision=False, representative_dataset=mock_dataset)
 
         assert wrapper.float_model == mock_model
         assert wrapper.method == 'PTQ'
         assert wrapper.framework == 'tensorflow'
-        assert wrapper.use_MCT_TPC is True
+        assert wrapper.use_internal_tpc is True
         assert wrapper.use_mixed_precision is False
         assert wrapper.representative_dataset == mock_dataset
 
@@ -122,14 +122,14 @@ class TestMCTWrapper:
         """
         Test _get_tpc method when using MCT TPC.
         
-        Verifies that when use_MCT_TPC is True, the wrapper correctly calls
+        Verifies that when use_internal_tpc is True, the wrapper correctly calls
         mct.get_target_platform_capabilities with expected parameters.
         
         Note: Patch targets mct.get_target_platform_capabilities because
         MCTWrapper imports 'model_compression_toolkit as mct'.
         """
         wrapper = MCTWrapper()
-        wrapper.use_MCT_TPC = True
+        wrapper.use_internal_tpc = True
         mock_tpc = Mock()
         mock_mct_get_tpc.return_value = mock_tpc
         
@@ -149,14 +149,14 @@ class TestMCTWrapper:
         """
         Test _get_tpc method when EdgeMDT TPC is not available.
         
-        Verifies that when use_MCT_TPC is False and edgemdt_tpc is not
+        Verifies that when use_internal_tpc is False and edgemdt_tpc is not
         available, an appropriate exception is raised.
         """
         # Patch FOUND_TPC to False to simulate edgemdt_tpc unavailability
         with patch('model_compression_toolkit.wrapper.mct_wrapper.FOUND_TPC',
                    False):
             wrapper = MCTWrapper()
-            wrapper.use_MCT_TPC = False
+            wrapper.use_internal_tpc = False
             
             # Expect exception when EdgeMDT TPC is not available
             with pytest.raises(Exception) as exc_info:
@@ -475,7 +475,7 @@ class TestMCTWrapperErrorHandling:
                 float_model=Mock(),
                 method='UNSUPPORTED_METHOD',
                 framework='tensorflow',
-                use_MCT_TPC=True,
+                use_internal_tpc=True,
                 use_mixed_precision=False,
                 representative_dataset=Mock(),
                 param_items=[]
@@ -493,7 +493,7 @@ class TestMCTWrapperErrorHandling:
                 float_model=Mock(),
                 method='PTQ',
                 framework='unsupported',
-                use_MCT_TPC=True,
+                use_internal_tpc=True,
                 use_mixed_precision=False,
                 representative_dataset=Mock(),
                 param_items=[]
