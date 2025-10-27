@@ -17,6 +17,7 @@ import os
 from typing import Dict, Any, List, Tuple, Optional, Union, Callable
 import model_compression_toolkit as mct
 from model_compression_toolkit.wrapper import constants as wrapper_const
+from model_compression_toolkit.logger import Logger
 #import low_bit_quantizer_ptq.ptq as lq_ptq
 
 import importlib
@@ -141,9 +142,9 @@ class MCTWrapper:
                 # Update parameter value if key exists in default parameters
                 self.params[key] = value
             else:
-                print(f"Warning: The key '{key}' is not found in the default "
-                      f"parameters and will be ignored.")
-       
+                Logger.warning(f"The key '{key}' is not found in the default "
+                               f"parameters and will be ignored.")
+
     def _select_method(self) -> None:
         """
         Select and set appropriate quantization, export, and config methods.
