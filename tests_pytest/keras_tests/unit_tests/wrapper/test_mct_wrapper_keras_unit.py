@@ -38,7 +38,7 @@ class TestMCTWrapper:
     Test Categories:
         - Input Validation: Testing _initialize_and_validate success cases
         - Parameter Management: Testing _modify_params functionality
-        - TPC Configuration: Testing _get_TPC with different TPC sources
+        - TPC Configuration: Testing _get_tpc with different TPC sources
         - Method Selection: Testing _select_method for different frameworks
         - Configuration Methods: Testing PTQ/GPTQ parameter generation
         - Export Functionality: Testing model export for different frameworks
@@ -118,9 +118,9 @@ class TestMCTWrapper:
         assert 'another_fake_key' not in wrapper.params
 
     @patch('model_compression_toolkit.wrapper.mct_wrapper.mct.get_target_platform_capabilities')
-    def test_get_TPC_with_MCT_TPC(self, mock_mct_get_tpc: Mock) -> None:
+    def test_get_tpc_with_MCT_TPC(self, mock_mct_get_tpc: Mock) -> None:
         """
-        Test _get_TPC method when using MCT TPC.
+        Test _get_tpc method when using MCT TPC.
         
         Verifies that when use_MCT_TPC is True, the wrapper correctly calls
         mct.get_target_platform_capabilities with expected parameters.
@@ -133,7 +133,7 @@ class TestMCTWrapper:
         mock_tpc = Mock()
         mock_mct_get_tpc.return_value = mock_tpc
         
-        wrapper._get_TPC()
+        wrapper._get_tpc()
         
         # Check if MCT get_target_platform_capabilities was called correctly
         # These parameters match the default values in MCTWrapper.__init__()
@@ -145,9 +145,9 @@ class TestMCTWrapper:
         mock_mct_get_tpc.assert_called_once_with(**expected_params)
         assert wrapper.tpc == mock_tpc
 
-    def test_get_TPC_without_MCT_TPC(self) -> None:
+    def test_get_tpc_without_MCT_TPC(self) -> None:
         """
-        Test _get_TPC method when EdgeMDT TPC is not available.
+        Test _get_tpc method when EdgeMDT TPC is not available.
         
         Verifies that when use_MCT_TPC is False and edgemdt_tpc is not
         available, an appropriate exception is raised.
@@ -160,7 +160,7 @@ class TestMCTWrapper:
             
             # Expect exception when EdgeMDT TPC is not available
             with pytest.raises(Exception) as exc_info:
-                wrapper._get_TPC()
+                wrapper._get_tpc()
 
             # Verify correct error message
             expected_msg = "EdgeMDT TPC module is not available."

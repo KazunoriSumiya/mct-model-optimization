@@ -39,7 +39,7 @@ class TestMCTWrapperIntegration:
     """
 
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
-           'MCTWrapper._get_TPC')
+           'MCTWrapper._get_tpc')
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._select_method')
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
@@ -69,7 +69,7 @@ class TestMCTWrapperIntegration:
             7. Model export
         
         Mocked Components:
-            - _get_TPC: TPC configuration
+            - _get_tpc: TPC configuration
             - _select_method: Framework-specific method selection
             - _Setting_PTQ: PTQ parameter configuration
             - _export_model: Model export functionality
@@ -127,7 +127,7 @@ class TestMCTWrapperIntegration:
         assert result_model == mock_quantized_model
 
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
-           'MCTWrapper._get_TPC')
+           'MCTWrapper._get_tpc')
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._select_method')
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'

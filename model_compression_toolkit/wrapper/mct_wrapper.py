@@ -27,8 +27,6 @@ from model_compression_toolkit.wrapper.constants import (
 )
 #import low_bit_quantizer_ptq.ptq as lq_ptq
 
-
-
 import importlib
 FOUND_TPC = importlib.util.find_spec("edgemdt_tpc") is not None
 FOUND_TPC = False
@@ -241,7 +239,7 @@ class MCTWrapper:
         elif self.framework == 'pytorch':
             self.argname_model = MODEL
 
-    def _get_TPC(self) -> None:
+    def _get_tpc(self) -> None:
         """
         Configure Target Platform Capabilities (TPC) based on selected option.
 
@@ -492,7 +490,7 @@ class MCTWrapper:
             self.select_argname()
 
             # Step 6: Configure Target Platform Capabilities
-            self._get_TPC()
+            self._get_tpc()
 
             # Step 7: Prepare quantization parameters
             params_PTQ = self._setting_PTQparam()
