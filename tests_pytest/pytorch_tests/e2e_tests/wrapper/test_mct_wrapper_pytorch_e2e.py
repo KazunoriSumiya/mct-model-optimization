@@ -72,9 +72,9 @@ def get_representative_dataset(n_iter=5):
 
 @pytest.mark.parametrize("quant_func", [
     "PTQ_Pytorch",
-    "PTQ_Pytorch_MixP",
+    "PTQ_Pytorch_mixed_precision",
     "GPTQ_Pytorch",
-    "GPTQ_Pytorch_MixP",
+    "GPTQ_Pytorch_mixed_precision",
 ])
 def test_quantization(
         quant_func: str,
@@ -92,10 +92,10 @@ def test_quantization(
         quant_func (str): Name of quantization method to test
         
     Test Methods:
-        - PTQ_Pytorch: Standard Post-Training Quantization for PyTorch
-        - PTQ_Pytorch_MixP: PTQ with Mixed Precision optimization
+        - PTQ_Pytorch: Standard Post-Training Quantization
+        - PTQ_Pytorch_mixed_precision: PTQ with Mixed Precision optimization
         - GPTQ_Pytorch: Gradient-based Post-Training Quantization
-        - GPTQ_Pytorch_MixP: GPTQ with Mixed Precision optimization
+        - GPTQ_Pytorch_mixed_precision: GPTQ with Mixed Precision optimization
         
     Export Format:
         All quantized models are exported to ONNX format for cross-platform
@@ -179,9 +179,9 @@ def test_quantization(
         return flag, quantized_model
 
     #########################################################################
-    # Run PTQ + Mixed Precision Quantization (MixP) with PyTorch
+    # Run PTQ + Mixed Precision Quantization with PyTorch
     @decorator
-    def PTQ_Pytorch_MixP(float_model):
+    def PTQ_Pytorch_mixed_precision(float_model):
         """
         Execute PTQ with Mixed Precision Quantization on PyTorch model.
         
@@ -209,7 +209,7 @@ def test_quantization(
             ['num_of_images', 5, 'Number of images for mixed precision.'],
             ['use_hessian_based_scores', False, 'Use Hessian-based scores.'],
             ['weights_compression_ratio', 0.5, 'Compression ratio.'],
-            ['save_model_path', './qmodel_PTQ_Pytorch_MixP.onnx',
+            ['save_model_path', './qmodel_PTQ_Pytorch_mixed_precision.onnx',
              'Path to save the model.']
         ]
 
@@ -263,9 +263,9 @@ def test_quantization(
         return flag, quantized_model
 
     #########################################################################
-    # Run GPTQ + Mixed Precision Quantization (MixP) with PyTorch
+    # Run GPTQ + Mixed Precision Quantization with PyTorch
     @decorator
-    def GPTQ_Pytorch_MixP(float_model):
+    def GPTQ_Pytorch_mixed_precision(float_model):
         """
         Execute GPTQ with Mixed Precision Quantization on PyTorch model.
         
@@ -295,7 +295,7 @@ def test_quantization(
             ['num_of_images', 5, 'Number of images for mixed precision.'],
             ['use_hessian_based_scores', False, 'Use Hessian-based scores.'],
             ['weights_compression_ratio', 0.5, 'Compression ratio.'],
-            ['save_model_path', './qmodel_GPTQ_Pytorch_MixP.onnx',
+            ['save_model_path', './qmodel_GPTQ_Pytorch_mixed_precision.onnx',
              'Path to save the model.']
         ]
 
@@ -309,9 +309,9 @@ def test_quantization(
     # Execute the selected quantization method
     quant_methods = {
         "PTQ_Pytorch": PTQ_Pytorch,
-        "PTQ_Pytorch_MixP": PTQ_Pytorch_MixP,
+        "PTQ_Pytorch_mixed_precision": PTQ_Pytorch_mixed_precision,
         "GPTQ_Pytorch": GPTQ_Pytorch,
-        "GPTQ_Pytorch_MixP": GPTQ_Pytorch_MixP,
+        "GPTQ_Pytorch_mixed_precision": GPTQ_Pytorch_mixed_precision,
     }
     
     # Run the quantization method and verify successful completion

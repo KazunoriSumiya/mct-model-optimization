@@ -67,9 +67,9 @@ def get_representative_dataset(n_iter=5):
 
 @pytest.mark.parametrize("quant_func", [
     "PTQ_Keras",
-    "PTQ_Keras_MixP",
+    "PTQ_Keras_mixed_precision",
     "GPTQ_Keras",
-    "GPTQ_Keras_MixP",
+    "GPTQ_Keras_mixed_precision",
     # "LQPTQ_Keras",  # Add if needed
 ])
 def test_quantization(
@@ -87,9 +87,9 @@ def test_quantization(
         
     Test Methods:
         - PTQ_Keras: Standard Post-Training Quantization
-        - PTQ_Keras_MixP: PTQ with Mixed Precision optimization
+        - PTQ_Keras_mixed_precision: PTQ with Mixed Precision optimization
         - GPTQ_Keras: Gradient-based Post-Training Quantization
-        - GPTQ_Keras_MixP: GPTQ with Mixed Precision optimization
+        - GPTQ_Keras_mixed_precision: GPTQ with Mixed Precision optimization
     """
     
     # Get model and representative dataset using fixtures
@@ -153,9 +153,9 @@ def test_quantization(
         return flag, quantized_model
 
     #########################################################################
-    # Run PTQ + Mixed Precision Quantization (MixP) with Keras
+    # Run PTQ + Mixed Precision Quantization with Keras
     @decorator
-    def PTQ_Keras_MixP(float_model: keras.Model) -> Tuple[bool, keras.Model]:
+    def PTQ_Keras_mixed_precision(float_model: keras.Model) -> Tuple[bool, keras.Model]:
         """
         Execute PTQ with Mixed Precision optimization for better accuracy.
         
@@ -175,7 +175,7 @@ def test_quantization(
 
                        ['weights_compression_ratio', 0.75, ''],
 
-                       ['save_model_path', './qmodel_PTQ_Keras_MixP.tflite', 'Path to save the model.']]
+                       ['save_model_path', './qmodel_PTQ_Keras_mixed_precision.tflite', 'Path to save the model.']]
 
         # Execute quantization with mixed precision using MCTWrapper
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
@@ -212,9 +212,9 @@ def test_quantization(
         return flag, quantized_model
 
     #########################################################################
-    # Run GPTQ + Mixed Precision Quantization (MixP) with Keras
+    # Run GPTQ + Mixed Precision Quantization (mixed_precision) with Keras
     @decorator
-    def GPTQ_Keras_MixP(float_model: keras.Model) -> Tuple[bool, keras.Model]:
+    def GPTQ_Keras_mixed_precision(float_model: keras.Model) -> Tuple[bool, keras.Model]:
         method = 'GPTQ'
         framework = 'tensorflow'
         use_MCT_TPC = True
@@ -230,7 +230,7 @@ def test_quantization(
 
                        ['weights_compression_ratio', 0.75, ''],
 
-                       ['save_model_path', './qmodel_GPTQ_Keras_MixP.tflite', 'Path to save the model.']]
+                       ['save_model_path', './qmodel_GPTQ_Keras_mixed_precision.tflite', 'Path to save the model.']]
 
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
         flag, quantized_model = wrapper.quantize_and_export(float_model, method, framework, use_MCT_TPC, use_mixed_precision, representative_dataset_gen, param_items)
@@ -259,9 +259,9 @@ def test_quantization(
     # Execute the selected quantization method
     quant_methods = {
         "PTQ_Keras": PTQ_Keras,
-        "PTQ_Keras_MixP": PTQ_Keras_MixP,
+        "PTQ_Keras_mixed_precision": PTQ_Keras_mixed_precision,
         "GPTQ_Keras": GPTQ_Keras,
-        "GPTQ_Keras_MixP": GPTQ_Keras_MixP,
+        "GPTQ_Keras_mixed_precision": GPTQ_Keras_mixed_precision,
         # "LQPTQ_Keras": LQPTQ_Keras,  # Uncomment if needed
     }
     

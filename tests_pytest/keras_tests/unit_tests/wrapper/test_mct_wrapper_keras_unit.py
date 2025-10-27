@@ -57,13 +57,13 @@ class TestMCTWrapper:
         mock_dataset = Mock()
         
         wrapper._initialize_and_validate(float_model=mock_model, method='PTQ', framework='tensorflow', 
-                                         use_MCT_TPC=True, use_MixP=False, representative_dataset=mock_dataset)
+                                         use_MCT_TPC=True, use_mixed_precision=False, representative_dataset=mock_dataset)
 
         assert wrapper.float_model == mock_model
         assert wrapper.method == 'PTQ'
         assert wrapper.framework == 'tensorflow'
         assert wrapper.use_MCT_TPC is True
-        assert wrapper.use_MixP is False
+        assert wrapper.use_mixed_precision is False
         assert wrapper.representative_dataset == mock_dataset
 
     def test_modify_params(self) -> None:
@@ -185,7 +185,7 @@ class TestMCTWrapper:
         wrapper = MCTWrapper()
         wrapper.framework = 'tensorflow'
         wrapper.method = 'PTQ'
-        wrapper.use_MixP = False
+        wrapper.use_mixed_precision = False
         
         wrapper._select_method()
         
@@ -215,7 +215,7 @@ class TestMCTWrapper:
         wrapper = MCTWrapper()
         wrapper.framework = 'tensorflow'
         wrapper.method = 'GPTQ'
-        wrapper.use_MixP = False
+        wrapper.use_mixed_precision = False
         
         wrapper._select_method()
         
@@ -246,13 +246,13 @@ class TestMCTWrapper:
     @patch('model_compression_toolkit.core.MixedPrecisionQuantizationConfig')
     @patch('model_compression_toolkit.core.CoreConfig')
     @patch('model_compression_toolkit.core.ResourceUtilization')
-    def test_setting_PTQ_MixP(
+    def test_setting_PTQ_mixed_precision(
             self, mock_resource_util: Mock, mock_core_config: Mock,
             mock_mixed_precision_config: Mock) -> None:
         """
-        Test _Setting_PTQ_MixP method for Mixed Precision PTQ configuration.
+        Test _setting_PTQ_mixed_precision method for Mixed Precision PTQ configuration.
         
-        This test verifies that the _Setting_PTQ_MixP method correctly configures
+        This test verifies that the _setting_PTQ_mixed_precision method correctly configures
         mixed precision Post-Training Quantization parameters by properly setting
         up configuration objects and resource utilization constraints.
         """
@@ -276,7 +276,7 @@ class TestMCTWrapper:
         mock_resource_util.return_value = mock_resource_util_instance
         
         wrapper.select_argname()
-        result = wrapper._setting_PTQ_MixP()
+        result = wrapper._setting_PTQ_mixed_precision()
         
         # Verify the method calls
         mock_mixed_precision_config.assert_called_with(
@@ -340,14 +340,14 @@ class TestMCTWrapper:
     @patch('model_compression_toolkit.core.MixedPrecisionQuantizationConfig')
     @patch('model_compression_toolkit.core.CoreConfig')
     @patch('model_compression_toolkit.core.ResourceUtilization')
-    def test_setting_GPTQ_MixP(
+    def test_setting_GPTQ_mixed_precision(
             self, mock_resource_util: Mock, mock_core_config: Mock,
             mock_mixed_precision_config: Mock,
             mock_quant_config: Mock) -> None:
         """
-        Test _setting_GPTQ_MixP method for Mixed Precision GPTQ configuration.
+        Test _setting_GPTQ_mixed_precision method for Mixed Precision GPTQ configuration.
         
-        This test verifies that the _setting_GPTQ_MixP method correctly
+        This test verifies that the _setting_GPTQ_mixed_precision method correctly
         configures mixed precision Gradient Post-Training Quantization
         parameters with proper configuration objects and resource utilization.
         """
@@ -374,7 +374,7 @@ class TestMCTWrapper:
         mock_resource_util.return_value = mock_resource_util_instance
 
         wrapper.select_argname()
-        result = wrapper._setting_GPTQ_MixP()
+        result = wrapper._setting_GPTQ_mixed_precision()
         
         # Verify the method calls
         mock_mixed_precision_config.assert_called_with(
@@ -476,7 +476,7 @@ class TestMCTWrapperErrorHandling:
                 method='UNSUPPORTED_METHOD',
                 framework='tensorflow',
                 use_MCT_TPC=True,
-                use_MixP=False,
+                use_mixed_precision=False,
                 representative_dataset=Mock(),
                 param_items=[]
             )
@@ -494,7 +494,7 @@ class TestMCTWrapperErrorHandling:
                 method='PTQ',
                 framework='unsupported',
                 use_MCT_TPC=True,
-                use_MixP=False,
+                use_mixed_precision=False,
                 representative_dataset=Mock(),
                 param_items=[]
             )

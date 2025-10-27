@@ -56,7 +56,7 @@ class MCTWrapper:
         method (str): Selected quantization method ('PTQ', 'GPTQ', 'LQPTQ')
         framework (str): Target framework ('tensorflow', 'pytorch')
         use_MCT_TPC (bool): Whether to use MCT's built-in TPC
-        use_MixP (bool): Whether to use mixed-precision quantization
+        use_mixed_precision (bool): Whether to use mixed-precision quantization
         representative_dataset: Calibration dataset for quantization
         tpc: Target Platform Capabilities configuration
     """
@@ -102,7 +102,7 @@ class MCTWrapper:
     def _initialize_and_validate(self, float_model: Any, method: str = 'PTQ',
                                  framework: str = 'pytorch',
                                  use_MCT_TPC: bool = True,
-                                 use_MixP: bool = False,
+                                 use_mixed_precision: bool = False,
                                  representative_dataset: Any = None) -> None:
         """
         Validate inputs and Initialize parameters.
@@ -112,7 +112,7 @@ class MCTWrapper:
             method (str): Quantization method ('PTQ', 'GPTQ', 'LQPTQ').
             framework (str): Target framework ('tensorflow', 'pytorch').
             use_MCT_TPC (bool): Whether to use MCT's built-in TPC.
-            use_MixP (bool): Whether to use mixed-precision quantization.
+            use_mixed_precision (bool): Whether to use mixed-precision quantization.
             representative_dataset: Representative dataset for calibration.
 
         Raises:
@@ -131,7 +131,7 @@ class MCTWrapper:
         self.method = method
         self.framework = framework
         self.use_MCT_TPC = use_MCT_TPC
-        self.use_MixP = use_MixP
+        self.use_mixed_precision = use_mixed_precision
         self.representative_dataset = representative_dataset
 
     def _modify_params(self, param_items: List[List[Any]]) -> None:
@@ -189,9 +189,9 @@ class MCTWrapper:
             elif self.framework == 'pytorch':
                 self._post_training_quantization = mct.ptq.pytorch_post_training_quantization
 
-            if self.use_MixP:
+            if self.use_mixed_precision:
                 # Use mixed precision PTQ parameter configuration
-                self._setting_PTQparam = self._setting_PTQ_MixP
+                self._setting_PTQparam = self._setting_PTQ_mixed_precision
             else:
                 # Use standard PTQ parameter configuration
                 self._setting_PTQparam = self._setting_PTQ
@@ -203,9 +203,9 @@ class MCTWrapper:
             elif self.framework == 'pytorch':
                 self._post_training_quantization = mct.gptq.pytorch_gradient_post_training_quantization
 
-            if self.use_MixP:
+            if self.use_mixed_precision:
                 # Use mixed precision GPTQ parameter configuration
-                self._setting_PTQparam = self._setting_GPTQ_MixP
+                self._setting_PTQparam = self._setting_GPTQ_mixed_precision
             else:
                 # Use standard GPTQ parameter configuration
                 self._setting_PTQparam = self._setting_GPTQ
@@ -273,7 +273,7 @@ class MCTWrapper:
             else:
                 raise Exception("EdgeMDT TPC module is not available.")
 
-    def _setting_PTQ_MixP(self) -> Dict[str, Any]:
+    def _setting_PTQ_mixed_precision(self) -> Dict[str, Any]:
         """
         Generate parameter dictionary for mixed-precision PTQ.
 
@@ -336,7 +336,7 @@ class MCTWrapper:
         }
         return params_PTQ
 
-    def _setting_GPTQ_MixP(self) -> Dict[str, Any]:
+    def _setting_GPTQ_mixed_precision(self) -> Dict[str, Any]:
         """
         Generate parameter dictionary for mixed-precision GPTQ.
 
@@ -451,7 +451,8 @@ class MCTWrapper:
         self.export_model(**params_Export)
 
     def quantize_and_export(self, float_model: Any, method: str, framework: str,
-                            use_MCT_TPC: bool, use_MixP: bool, representative_dataset: Any,
+                            use_MCT_TPC: bool, use_mixed_precision: bool,
+                            representative_dataset: Any,
                             param_items: List[List[Any]]) -> None:
         """
         Main function to perform model quantization and export.
@@ -461,7 +462,8 @@ class MCTWrapper:
             method (str): Quantization method, e.g., 'PTQ' or 'GPTQ' or 'LQ=PTQ
             framework (str): 'tensorflow' or 'pytorch'.
             use_MCT_TPC (bool): Whether to use MCT_TPC.
-            use_MixP (bool): Whether to use mixed-precision quantization.
+            use_mixed_precision (bool): Whether to use mixed-precision
+                quantization.
             representative_dataset: Representative dataset for calibration.
             param_items (list): List of parameter settings.
 
@@ -471,8 +473,8 @@ class MCTWrapper:
         try:
             # Step 1: Initialize and validate all input parameters
             self._initialize_and_validate(
-                float_model, method, framework, use_MCT_TPC, use_MixP,
-                representative_dataset)
+                float_model, method, framework, use_MCT_TPC,
+                use_mixed_precision, representative_dataset)
 
             # Step 2: Apply custom parameter modifications
             self._modify_params(param_items)

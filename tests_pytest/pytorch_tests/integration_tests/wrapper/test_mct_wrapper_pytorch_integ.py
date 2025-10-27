@@ -105,7 +105,7 @@ class TestMCTWrapperIntegration:
             method='PTQ',
             framework='pytorch',
             use_MCT_TPC=True,
-            use_MixP=False,
+            use_mixed_precision=False,
             representative_dataset=mock_representative_dataset,
             param_items=param_items
         )
@@ -133,14 +133,14 @@ class TestMCTWrapperIntegration:
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper.select_argname')
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
-           'MCTWrapper._setting_GPTQ_MixP')
+           'MCTWrapper._setting_GPTQ_mixed_precision')
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._export_model')
-    def test_quantize_and_export_GPTQ_MixP_flow(
-            self, mock_export: Mock, mock_setting_gptq_mixp: Mock,
+    def test_quantize_and_export_GPTQ_mixed_precision_flow(
+            self, mock_export: Mock, mock_setting_gptq_mixed_precision: Mock,
             mock_select_argname: Mock, mock_select_method: Mock,
             mock_get_tpc: Mock) -> None:
-        """Test complete quantize_and_export flow for GPTQ with MixP"""
+        """Test complete quantize_and_export flow for GPTQ with mixed_precision"""
         wrapper = MCTWrapper()
         
         # Setup mocks
@@ -152,9 +152,9 @@ class TestMCTWrapperIntegration:
         wrapper._post_training_quantization = Mock(
             return_value=(mock_quantized_model, mock_info))
         wrapper.export_model = Mock()
-        wrapper._setting_PTQparam = mock_setting_gptq_mixp
+        wrapper._setting_PTQparam = mock_setting_gptq_mixed_precision
         
-        mock_setting_gptq_mixp.return_value = {'mock': 'gptq_params'}
+        mock_setting_gptq_mixed_precision.return_value = {'mock': 'gptq_params'}
         
         # Call the method
         success, result_model = wrapper.quantize_and_export(
@@ -162,7 +162,7 @@ class TestMCTWrapperIntegration:
             method='GPTQ',
             framework='pytorch',
             use_MCT_TPC=True,
-            use_MixP=True,
+            use_mixed_precision=True,
             representative_dataset=mock_representative_dataset,
             param_items=[]
         )
@@ -171,7 +171,7 @@ class TestMCTWrapperIntegration:
         mock_get_tpc.assert_called_once_with()
         mock_select_method.assert_called_once_with()
         mock_select_argname.assert_called_once_with()
-        mock_setting_gptq_mixp.assert_called_once()
+        mock_setting_gptq_mixed_precision.assert_called_once()
         wrapper._post_training_quantization.assert_called_once_with(
             **{'mock': 'gptq_params'})
         mock_export.assert_called_once_with(mock_quantized_model)
