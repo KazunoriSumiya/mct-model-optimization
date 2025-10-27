@@ -16,9 +16,18 @@
 import os
 from typing import Dict, Any, List, Tuple, Optional, Union, Callable
 import model_compression_toolkit as mct
-from model_compression_toolkit.wrapper import constants as wrapper_const
 from model_compression_toolkit.logger import Logger
+from model_compression_toolkit.wrapper.constants import (
+    REPRESENTATIVE_DATA_GEN, CORE_CONFIG, FW_NAME, TARGET_PLATFORM_VERSION,
+    TARGET_PLATFORM_NAME, TPC_VERSION, DEVICE_TYPE, EXTENDED_VERSION,
+    NUM_OF_IMAGES, USE_HESSIAN_BASED_SCORES, IN_MODEL, IN_MODULE, MODEL,
+    TARGET_PLATFORM_CAPABILITIES, TARGET_RESOURCE_UTILIZATION,
+    ACTIVATION_ERROR_METHOD, WEIGHTS_ERROR_METHOD, WEIGHTS_BIAS_CORRECTION,
+    Z_THRESHOLD, LINEAR_COLLAPSING, RESIDUAL_COLLAPSING, GPTQ_CONFIG
+)
 #import low_bit_quantizer_ptq.ptq as lq_ptq
+
+
 
 import importlib
 FOUND_TPC = importlib.util.find_spec("edgemdt_tpc") is not None
@@ -223,14 +232,14 @@ class MCTWrapper:
             calling any _setting_* methods that use these parameter names.
         """
         if self.framework == 'tensorflow':
-            self.argname_in_module = wrapper_const.IN_MODEL
+            self.argname_in_module = IN_MODEL
         elif self.framework == 'pytorch':
-            self.argname_in_module = wrapper_const.IN_MODULE
+            self.argname_in_module = IN_MODULE
 
         if self.framework == 'tensorflow':
-            self.argname_model = wrapper_const.IN_MODEL
+            self.argname_model = IN_MODEL
         elif self.framework == 'pytorch':
-            self.argname_model = wrapper_const.MODEL
+            self.argname_model = MODEL
 
     def _get_TPC(self) -> None:
         """
@@ -245,9 +254,9 @@ class MCTWrapper:
         if self.use_MCT_TPC:
             # Use MCT's built-in TPC configuration
             params_TPC = {
-                wrapper_const.FW_NAME: self.params['fw_name'],
-                wrapper_const.TARGET_PLATFORM_NAME: 'imx500',
-                wrapper_const.TARGET_PLATFORM_VERSION: self.params['target_platform_version'],
+                FW_NAME: self.params['fw_name'],
+                TARGET_PLATFORM_NAME: 'imx500',
+                TARGET_PLATFORM_VERSION: self.params['target_platform_version'],
             }
             # Get TPC from MCT framework
             self.tpc = mct.get_target_platform_capabilities(**params_TPC)
@@ -255,9 +264,9 @@ class MCTWrapper:
             if FOUND_TPC:
                 # Use external EdgeMDT TPC configuration
                 params_TPC = {
-                    wrapper_const.TPC_VERSION: self.params['tpc_version'],
-                    wrapper_const.DEVICE_TYPE: 'imx500',
-                    wrapper_const.EXTENDED_VERSION: None
+                    TPC_VERSION: self.params['tpc_version'],
+                    DEVICE_TYPE: 'imx500',
+                    EXTENDED_VERSION: None
                 }
                 # Get TPC from EdgeMDT framework
                 self.tpc = edgemdt_tpc.get_target_platform_capabilities(**params_TPC)
@@ -272,16 +281,16 @@ class MCTWrapper:
             dict: Parameter dictionary for PTQ.
         """
         params_MPCfg = {
-            wrapper_const.NUM_OF_IMAGES: self.params['num_of_images'],
-            wrapper_const.USE_HESSIAN_BASED_SCORES: self.params['use_hessian_based_scores'],
+            NUM_OF_IMAGES: self.params['num_of_images'],
+            USE_HESSIAN_BASED_SCORES: self.params['use_hessian_based_scores'],
         }
         mixed_precision_config = mct.core.MixedPrecisionQuantizationConfig(**params_MPCfg)
         core_config = mct.core.CoreConfig(mixed_precision_config=mixed_precision_config)
         params_RUDCfg = {
-            wrapper_const.IN_MODEL: self.float_model,
-            wrapper_const.REPRESENTATIVE_DATA_GEN: self.representative_dataset,
-            wrapper_const.CORE_CONFIG: core_config,
-            wrapper_const.TARGET_PLATFORM_CAPABILITIES: self.tpc
+            IN_MODEL: self.float_model,
+            REPRESENTATIVE_DATA_GEN: self.representative_dataset,
+            CORE_CONFIG: core_config,
+            TARGET_PLATFORM_CAPABILITIES: self.tpc
         }
         ru_data = self.resource_utilization_data(**params_RUDCfg)
         weights_compression_ratio = (
@@ -292,10 +301,10 @@ class MCTWrapper:
 
         params_PTQ = {
             self.argname_in_module: self.float_model,
-            wrapper_const.REPRESENTATIVE_DATA_GEN: self.representative_dataset,
-            wrapper_const.TARGET_RESOURCE_UTILIZATION: resource_utilization,
-            wrapper_const.CORE_CONFIG: core_config,
-            wrapper_const.TARGET_PLATFORM_CAPABILITIES: self.tpc
+            REPRESENTATIVE_DATA_GEN: self.representative_dataset,
+            TARGET_RESOURCE_UTILIZATION: resource_utilization,
+            CORE_CONFIG: core_config,
+            TARGET_PLATFORM_CAPABILITIES: self.tpc
         }
         return params_PTQ
 
@@ -307,12 +316,12 @@ class MCTWrapper:
             dict: Parameter dictionary for PTQ.
         """
         params_QCfg = {
-            wrapper_const.ACTIVATION_ERROR_METHOD: self.params['activation_error_method'],
-            wrapper_const.WEIGHTS_ERROR_METHOD: mct.core.QuantizationErrorMethod.MSE,
-            wrapper_const.WEIGHTS_BIAS_CORRECTION: self.params['weights_bias_correction'],
-            wrapper_const.Z_THRESHOLD: self.params['z_threshold'],
-            wrapper_const.LINEAR_COLLAPSING: self.params['linear_collapsing'],
-            wrapper_const.RESIDUAL_COLLAPSING: self.params['residual_collapsing']
+            ACTIVATION_ERROR_METHOD: self.params['activation_error_method'],
+            WEIGHTS_ERROR_METHOD: mct.core.QuantizationErrorMethod.MSE,
+            WEIGHTS_BIAS_CORRECTION: self.params['weights_bias_correction'],
+            Z_THRESHOLD: self.params['z_threshold'],
+            LINEAR_COLLAPSING: self.params['linear_collapsing'],
+            RESIDUAL_COLLAPSING: self.params['residual_collapsing']
         }
         q_config = mct.core.QuantizationConfig(**params_QCfg)
         core_config = mct.core.CoreConfig(quantization_config=q_config)
@@ -320,10 +329,10 @@ class MCTWrapper:
 
         params_PTQ = {
             self.argname_in_module: self.float_model,
-            wrapper_const.REPRESENTATIVE_DATA_GEN: self.representative_dataset,
-            wrapper_const.TARGET_RESOURCE_UTILIZATION: resource_utilization,
-            wrapper_const.CORE_CONFIG: core_config,
-            wrapper_const.TARGET_PLATFORM_CAPABILITIES: self.tpc
+            REPRESENTATIVE_DATA_GEN: self.representative_dataset,
+            TARGET_RESOURCE_UTILIZATION: resource_utilization,
+            CORE_CONFIG: core_config,
+            TARGET_PLATFORM_CAPABILITIES: self.tpc
         }
         return params_PTQ
 
@@ -341,16 +350,16 @@ class MCTWrapper:
         gptq_config = self.get_gptq_config(**params_GPTQCfg)
 
         params_MPCfg = {
-            wrapper_const.NUM_OF_IMAGES: self.params['num_of_images'],
-            wrapper_const.USE_HESSIAN_BASED_SCORES: self.params['use_hessian_based_scores'],
+            NUM_OF_IMAGES: self.params['num_of_images'],
+            USE_HESSIAN_BASED_SCORES: self.params['use_hessian_based_scores'],
         }
         mixed_precision_config = mct.core.MixedPrecisionQuantizationConfig(**params_MPCfg)
         core_config = mct.core.CoreConfig(mixed_precision_config=mixed_precision_config)
         params_RUDCfg = {
-            wrapper_const.IN_MODEL: self.float_model,
-            wrapper_const.REPRESENTATIVE_DATA_GEN: self.representative_dataset,
-            wrapper_const.CORE_CONFIG: core_config,
-            wrapper_const.TARGET_PLATFORM_CAPABILITIES: self.tpc
+            IN_MODEL: self.float_model,
+            REPRESENTATIVE_DATA_GEN: self.representative_dataset,
+            CORE_CONFIG: core_config,
+            TARGET_PLATFORM_CAPABILITIES: self.tpc
         }
         ru_data = self.resource_utilization_data(**params_RUDCfg)
         weights_compression_ratio = (
@@ -366,11 +375,11 @@ class MCTWrapper:
 
         params_GPTQ = {
             self.argname_model: self.float_model,
-            wrapper_const.REPRESENTATIVE_DATA_GEN: self.representative_dataset,
-            wrapper_const.TARGET_RESOURCE_UTILIZATION: resource_utilization,
-            wrapper_const.GPTQ_CONFIG: gptq_config,
-            wrapper_const.CORE_CONFIG: core_config,
-            wrapper_const.TARGET_PLATFORM_CAPABILITIES: self.tpc
+            REPRESENTATIVE_DATA_GEN: self.representative_dataset,
+            TARGET_RESOURCE_UTILIZATION: resource_utilization,
+            GPTQ_CONFIG: gptq_config,
+            CORE_CONFIG: core_config,
+            TARGET_PLATFORM_CAPABILITIES: self.tpc
         }
         return params_GPTQ
 
@@ -389,9 +398,9 @@ class MCTWrapper:
 
         params_GPTQ = {
             self.argname_model: self.float_model,
-            wrapper_const.REPRESENTATIVE_DATA_GEN: self.representative_dataset,
-            wrapper_const.GPTQ_CONFIG: gptq_config,
-            wrapper_const.TARGET_PLATFORM_CAPABILITIES: self.tpc
+            REPRESENTATIVE_DATA_GEN: self.representative_dataset,
+            GPTQ_CONFIG: gptq_config,
+            TARGET_PLATFORM_CAPABILITIES: self.tpc
         }
         return params_GPTQ
 
@@ -408,22 +417,6 @@ class MCTWrapper:
         Note:
             This method requires the lq_ptq module to be imported.
         """
-        model_save_dir, output_file_name = os.path.split(
-            self.params['save_model_path'])
-        
-        # Note: lq_ptq module should be imported when using this method
-        # q_model = lq_ptq.low_bit_quantizer_ptq(
-        #     fp_model=self.float_model,
-        #     representative_dataset=self.representative_dataset,
-        #     model_save_dir=model_save_dir,
-        #     output_file_name=output_file_name,
-        #     learning_rate=self.params['learning_rate'],
-        #     converter_ver=self.params['converter_ver'],
-        #     debug_level='INFO',
-        #     debug_detail=False,
-        #     overwrite_output_file=True)
-        # return q_model
-        
         # Placeholder implementation - replace with actual lq_ptq call
         raise NotImplementedError(
             "LQ-PTQ functionality requires lq_ptq module to be imported")
