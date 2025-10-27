@@ -90,10 +90,11 @@ class MCTWrapper:
             'callback': None
         }
 
-    def _initialize_and_validate(self, float_model: Any, method: str,
-                                 framework: str, use_MCT_TPC: bool,
-                                 use_MixP: bool,
-                                 representative_dataset: Any) -> None:
+    def _initialize_and_validate(self, float_model: Any, method: str = 'PTQ',
+                                 framework: str = 'pytorch',
+                                 use_MCT_TPC: bool = True,
+                                 use_MixP: bool = False,
+                                 representative_dataset: Any = None) -> None:
         """
         Validate inputs and Initialize parameters.
 
