@@ -434,19 +434,19 @@ class MCTWrapper:
             ONNX for PyTorch.
         """
         if self.framework == 'tensorflow':
-            params_Export = {
+            params_export = {
                 'model': quantized_model,
                 'save_model_path': self.params['save_model_path'],
                 'serialization_format': (mct.exporter.KerasExportSerializationFormat.TFLITE),
                 'quantization_format': (mct.exporter.QuantizationFormat.FAKELY_QUANT)
             }
         elif self.framework == 'pytorch':
-            params_Export = {
+            params_export = {
                 'model': quantized_model,
                 'save_model_path': self.params['save_model_path'],
                 'repr_dataset': self.representative_dataset
             }
-        self.export_model(**params_Export)
+        self.export_model(**params_export)
 
     def quantize_and_export(self, float_model: Any, method: str, framework: str,
                             use_internal_tpc: bool, use_mixed_precision: bool,
