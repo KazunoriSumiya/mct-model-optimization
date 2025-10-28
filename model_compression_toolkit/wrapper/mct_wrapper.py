@@ -207,7 +207,7 @@ class MCTWrapper:
                 # Use standard GPTQ parameter configuration
                 self._setting_PTQparam = self._setting_GPTQ
 
-    def select_argname(self) -> None:
+    def _select_argname(self) -> None:
         """
         Select argument names based on the framework and method.
         
@@ -486,7 +486,7 @@ class MCTWrapper:
             self._select_method()
             
             # Step 5: Select framework-specific argument names
-            self.select_argname()
+            self._select_argname()
 
             # Step 6: Configure Target Platform Capabilities
             self._get_tpc()
