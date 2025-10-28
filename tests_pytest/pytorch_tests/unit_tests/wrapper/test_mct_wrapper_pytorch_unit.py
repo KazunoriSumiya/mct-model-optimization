@@ -150,7 +150,7 @@ class TestMCTWrapper:
         available, an appropriate exception is raised.
         """
         # Patch FOUND_TPC to False to simulate edgemdt_tpc unavailability
-        with patch('model_compression_toolkit.wrapper.mct_wrapper.FOUND_TPC',
+        with patch('model_compression_toolkit.verify_packages.FOUND_TPC',
                    False):
             wrapper = MCTWrapper()
             wrapper.use_internal_tpc = False
