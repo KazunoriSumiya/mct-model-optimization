@@ -26,7 +26,6 @@ from model_compression_toolkit.wrapper.constants import (
     ACTIVATION_ERROR_METHOD, WEIGHTS_ERROR_METHOD, WEIGHTS_BIAS_CORRECTION,
     Z_THRESHOLD, LINEAR_COLLAPSING, RESIDUAL_COLLAPSING, GPTQ_CONFIG
 )
-#import low_bit_quantizer_ptq.ptq as lq_ptq
 
 
 class MCTWrapper:
