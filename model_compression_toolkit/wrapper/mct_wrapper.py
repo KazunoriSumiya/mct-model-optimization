@@ -24,7 +24,8 @@ from model_compression_toolkit.wrapper.constants import (
     NUM_OF_IMAGES, USE_HESSIAN_BASED_SCORES, IN_MODEL, IN_MODULE, MODEL,
     TARGET_PLATFORM_CAPABILITIES, TARGET_RESOURCE_UTILIZATION,
     ACTIVATION_ERROR_METHOD, WEIGHTS_ERROR_METHOD, WEIGHTS_BIAS_CORRECTION,
-    Z_THRESHOLD, LINEAR_COLLAPSING, RESIDUAL_COLLAPSING, GPTQ_CONFIG
+    Z_THRESHOLD, LINEAR_COLLAPSING, RESIDUAL_COLLAPSING, GPTQ_CONFIG,
+    WEIGHTS_COMPRESSION_RATIO, N_EPOCHS, OPTIMIZER
 )
 
 
@@ -161,13 +162,13 @@ class MCTWrapper:
         """
         if self.framework == 'tensorflow':
             # Set TensorFlow/Keras specific methods and parameters
-            self.params['fw_name'] = 'tensorflow'
+            self.params[FW_NAME] = 'tensorflow'
             self.resource_utilization_data = mct.core.keras_resource_utilization_data
             self.get_gptq_config = mct.gptq.get_keras_gptq_config
             self.export_model = mct.exporter.keras_export_model
         elif self.framework == 'pytorch':
             # Set PyTorch specific methods and parameters
-            self.params['fw_name'] = 'pytorch'
+            self.params[FW_NAME] = 'pytorch'
             self.resource_utilization_data = mct.core.pytorch_resource_utilization_data
             self.get_gptq_config = mct.gptq.get_pytorch_gptq_config
             self.export_model = mct.exporter.pytorch_export_model
@@ -246,9 +247,9 @@ class MCTWrapper:
         if self.use_internal_tpc:
             # Use MCT's built-in TPC configuration
             params_TPC = {
-                FW_NAME: self.params['fw_name'],
+                FW_NAME: self.params[FW_NAME],
                 TARGET_PLATFORM_NAME: 'imx500',
-                TARGET_PLATFORM_VERSION: self.params['target_platform_version'],
+                TARGET_PLATFORM_VERSION: self.params[TARGET_PLATFORM_VERSION],
             }
             # Get TPC from MCT framework
             self.tpc = mct.get_target_platform_capabilities(**params_TPC)
@@ -256,7 +257,7 @@ class MCTWrapper:
             if FOUND_TPC:
                 # Use external EdgeMDT TPC configuration
                 params_TPC = {
-                    TPC_VERSION: self.params['tpc_version'],
+                    TPC_VERSION: self.params[TPC_VERSION],
                     DEVICE_TYPE: 'imx500',
                     EXTENDED_VERSION: None
                 }
@@ -273,8 +274,8 @@ class MCTWrapper:
             dict: Parameter dictionary for PTQ.
         """
         params_MPCfg = {
-            NUM_OF_IMAGES: self.params['num_of_images'],
-            USE_HESSIAN_BASED_SCORES: self.params['use_hessian_based_scores'],
+            NUM_OF_IMAGES: self.params[NUM_OF_IMAGES],
+            USE_HESSIAN_BASED_SCORES: self.params[USE_HESSIAN_BASED_SCORES],
         }
         mixed_precision_config = mct.core.MixedPrecisionQuantizationConfig(**params_MPCfg)
         core_config = mct.core.CoreConfig(mixed_precision_config=mixed_precision_config)
@@ -286,8 +287,8 @@ class MCTWrapper:
         }
         ru_data = self.resource_utilization_data(**params_RUDCfg)
         weights_compression_ratio = (
-            0.75 if self.params['weights_compression_ratio'] is None
-            else self.params['weights_compression_ratio'])
+            0.75 if self.params[WEIGHTS_COMPRESSION_RATIO] is None
+            else self.params[WEIGHTS_COMPRESSION_RATIO])
         resource_utilization = mct.core.ResourceUtilization(
             ru_data.weights_memory * weights_compression_ratio)
 
@@ -308,12 +309,12 @@ class MCTWrapper:
             dict: Parameter dictionary for PTQ.
         """
         params_QCfg = {
-            ACTIVATION_ERROR_METHOD: self.params['activation_error_method'],
+            ACTIVATION_ERROR_METHOD: self.params[ACTIVATION_ERROR_METHOD],
             WEIGHTS_ERROR_METHOD: mct.core.QuantizationErrorMethod.MSE,
-            WEIGHTS_BIAS_CORRECTION: self.params['weights_bias_correction'],
-            Z_THRESHOLD: self.params['z_threshold'],
-            LINEAR_COLLAPSING: self.params['linear_collapsing'],
-            RESIDUAL_COLLAPSING: self.params['residual_collapsing']
+            WEIGHTS_BIAS_CORRECTION: self.params[WEIGHTS_BIAS_CORRECTION],
+            Z_THRESHOLD: self.params[Z_THRESHOLD],
+            LINEAR_COLLAPSING: self.params[LINEAR_COLLAPSING],
+            RESIDUAL_COLLAPSING: self.params[RESIDUAL_COLLAPSING]
         }
         q_config = mct.core.QuantizationConfig(**params_QCfg)
         core_config = mct.core.CoreConfig(quantization_config=q_config)
@@ -336,14 +337,14 @@ class MCTWrapper:
             dict: Parameter dictionary for GPTQ.
         """
         params_GPTQCfg = {
-            'n_epochs': self.params['n_epochs'],
-            'optimizer': self.params['optimizer']
+            N_EPOCHS: self.params[N_EPOCHS],
+            OPTIMIZER: self.params[OPTIMIZER]
         }
         gptq_config = self.get_gptq_config(**params_GPTQCfg)
 
         params_MPCfg = {
-            NUM_OF_IMAGES: self.params['num_of_images'],
-            USE_HESSIAN_BASED_SCORES: self.params['use_hessian_based_scores'],
+            NUM_OF_IMAGES: self.params[NUM_OF_IMAGES],
+            USE_HESSIAN_BASED_SCORES: self.params[USE_HESSIAN_BASED_SCORES],
         }
         mixed_precision_config = mct.core.MixedPrecisionQuantizationConfig(**params_MPCfg)
         core_config = mct.core.CoreConfig(mixed_precision_config=mixed_precision_config)
@@ -355,8 +356,8 @@ class MCTWrapper:
         }
         ru_data = self.resource_utilization_data(**params_RUDCfg)
         weights_compression_ratio = (
-            0.75 if self.params['weights_compression_ratio'] is None
-            else self.params['weights_compression_ratio'])
+            0.75 if self.params[WEIGHTS_COMPRESSION_RATIO] is None
+            else self.params[WEIGHTS_COMPRESSION_RATIO])
         resource_utilization = mct.core.ResourceUtilization(
             ru_data.weights_memory * weights_compression_ratio)
 
@@ -383,8 +384,8 @@ class MCTWrapper:
             dict: Parameter dictionary for GPTQ.
         """
         params_GPTQCfg = {
-            'n_epochs': self.params['n_epochs'],
-            'optimizer': self.params['optimizer']
+            N_EPOCHS: self.params[N_EPOCHS],
+            OPTIMIZER: self.params[OPTIMIZER]
         }
         gptq_config = self.get_gptq_config(**params_GPTQCfg)
 

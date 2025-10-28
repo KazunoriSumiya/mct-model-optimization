@@ -24,6 +24,7 @@ EXTENDED_VERSION = 'extended_version'
 # MixedPrecisionQuantizationConfig parameters
 NUM_OF_IMAGES = 'num_of_images'
 USE_HESSIAN_BASED_SCORES = 'use_hessian_based_scores'
+WEIGHTS_COMPRESSION_RATIO = 'weights_compression_ratio'
 
 # Resource utilization data parameters
 IN_MODEL = 'in_model'
@@ -46,3 +47,7 @@ RESIDUAL_COLLAPSING = 'residual_collapsing'
 # GPTQ specific parameters
 GPTQ_CONFIG = 'gptq_config'
 MODEL = 'model'
+
+# GPTQ parameters
+N_EPOCHS = 'n_epochs'
+OPTIMIZER = 'optimizer'
