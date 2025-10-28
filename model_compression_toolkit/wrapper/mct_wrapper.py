@@ -17,6 +17,7 @@ import os
 from typing import Dict, Any, List, Tuple, Optional, Union, Callable
 import model_compression_toolkit as mct
 from model_compression_toolkit.logger import Logger
+from model_compression_toolkit.verify_packages import FOUND_TPC
 from model_compression_toolkit.wrapper.constants import (
     REPRESENTATIVE_DATA_GEN, CORE_CONFIG, FW_NAME, TARGET_PLATFORM_VERSION,
     TARGET_PLATFORM_NAME, TPC_VERSION, DEVICE_TYPE, EXTENDED_VERSION,
@@ -26,11 +27,6 @@ from model_compression_toolkit.wrapper.constants import (
     Z_THRESHOLD, LINEAR_COLLAPSING, RESIDUAL_COLLAPSING, GPTQ_CONFIG
 )
 #import low_bit_quantizer_ptq.ptq as lq_ptq
-
-import importlib
-FOUND_TPC = importlib.util.find_spec("edgemdt_tpc") is not None
-if FOUND_TPC:
-    import edgemdt_tpc
 
 
 class MCTWrapper:
