@@ -63,8 +63,6 @@ These techniques are essential for further optimizing models and achieving super
   
 </details>
 
-
-
 ### Pytorch Tutorials
 
 
@@ -115,6 +113,3 @@ These techniques are essential for further optimizing models and achieving super
   | [Quantization Troubleshooting using the Xquant Feature](pytorch/example_pytorch_xquant.ipynb) | &#x2705; Debug    |
   
 </details>
-
-
-
