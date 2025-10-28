@@ -23,9 +23,6 @@ from typing import Any, List, Tuple
 from model_compression_toolkit.core import QuantizationErrorMethod
 from model_compression_toolkit.wrapper.mct_wrapper import MCTWrapper
 
-import importlib
-FOUND_TPC = importlib.util.find_spec("edgemdt_tpc") is not None
-FOUND_TPC = False
 
 class TestMCTWrapper:
     """
