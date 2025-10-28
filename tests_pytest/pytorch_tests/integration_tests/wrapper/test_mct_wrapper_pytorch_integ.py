@@ -43,7 +43,7 @@ class TestMCTWrapperIntegration:
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._select_method')
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
-           'MCTWrapper.select_argname')
+           'MCTWrapper._select_argname')
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._setting_PTQ')
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
@@ -131,7 +131,7 @@ class TestMCTWrapperIntegration:
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._select_method')
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
-           'MCTWrapper.select_argname')
+           'MCTWrapper._select_argname')
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
            'MCTWrapper._setting_GPTQ_mixed_precision')
     @patch('model_compression_toolkit.wrapper.mct_wrapper.'
