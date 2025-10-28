@@ -236,7 +236,7 @@ class TestMCTWrapper:
         wrapper = MCTWrapper()
         wrapper.framework = 'tensorflow'
         
-        wrapper.select_argname()
+        wrapper._select_argname()
         
         # TensorFlow should use IN_MODEL for argname_in_module
         assert wrapper.argname_in_module == 'in_model'
@@ -275,7 +275,7 @@ class TestMCTWrapper:
         mock_resource_util_instance = Mock()
         mock_resource_util.return_value = mock_resource_util_instance
         
-        wrapper.select_argname()
+        wrapper._select_argname()
         result = wrapper._setting_PTQ_mixed_precision()
         
         # Verify the method calls
@@ -317,7 +317,7 @@ class TestMCTWrapper:
         mock_ptq_config_instance = Mock()
         mock_core_config.return_value = mock_ptq_config_instance
         
-        wrapper.select_argname()
+        wrapper._select_argname()
         result = wrapper._setting_PTQ()
         
         # Verify the method calls
@@ -373,7 +373,7 @@ class TestMCTWrapper:
         mock_resource_util_instance = Mock()
         mock_resource_util.return_value = mock_resource_util_instance
 
-        wrapper.select_argname()
+        wrapper._select_argname()
         result = wrapper._setting_GPTQ_mixed_precision()
         
         # Verify the method calls
@@ -409,7 +409,7 @@ class TestMCTWrapper:
         wrapper.framework = 'tensorflow'
         wrapper.get_gptq_config = Mock(return_value=Mock())
 
-        wrapper.select_argname()
+        wrapper._select_argname()
         result = wrapper._setting_GPTQ()
         
         # Check that TensorFlow keeps 'in_model' parameter

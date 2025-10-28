@@ -237,7 +237,7 @@ class TestMCTWrapper:
         wrapper = MCTWrapper()
         wrapper.framework = 'pytorch'
         
-        wrapper.select_argname()
+        wrapper._select_argname()
         
         # PyTorch should use IN_MODULE for argname_in_module
         assert wrapper.argname_in_module == 'in_module'
@@ -276,7 +276,7 @@ class TestMCTWrapper:
         mock_resource_util_instance = Mock()
         mock_resource_util.return_value = mock_resource_util_instance
         
-        wrapper.select_argname()
+        wrapper._select_argname()
         result = wrapper._setting_PTQ_mixed_precision()
         
         # Verify the method calls
@@ -318,7 +318,7 @@ class TestMCTWrapper:
         mock_ptq_config_instance = Mock()
         mock_core_config.return_value = mock_ptq_config_instance
         
-        wrapper.select_argname()
+        wrapper._select_argname()
         result = wrapper._setting_PTQ()
         
         # Verify the method calls
@@ -374,7 +374,7 @@ class TestMCTWrapper:
         mock_resource_util_instance = Mock()
         mock_resource_util.return_value = mock_resource_util_instance
 
-        wrapper.select_argname()
+        wrapper._select_argname()
         result = wrapper._setting_GPTQ_mixed_precision()
         
         # Verify the method calls
@@ -410,7 +410,7 @@ class TestMCTWrapper:
         wrapper.framework = 'pytorch'
         wrapper.get_gptq_config = Mock(return_value=Mock())
 
-        wrapper.select_argname()
+        wrapper._select_argname()
         result = wrapper._setting_GPTQ()
         
         # Check that PyTorch uses 'model' parameter
