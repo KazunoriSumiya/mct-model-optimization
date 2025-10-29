@@ -25,7 +25,6 @@ Test Coverage:
 - PTQ with Mixed Precision (MixP)
 - Gradient Post-Training Quantization (GPTQ)
 - GPTQ with Mixed Precision (MixP)
-- Low-bit Quantization PTQ (LQPTQ)
 
 The tests use a simple CNN model and random data for representative
 dataset generation for quantization testing.
@@ -68,8 +67,7 @@ def get_representative_dataset(n_iter=5):
     "PTQ_Keras",
     "PTQ_Keras_mixed_precision",
     "GPTQ_Keras",
-    "GPTQ_Keras_mixed_precision",
-    # "LQPTQ_Keras",  # Add if needed
+    "GPTQ_Keras_mixed_precision"
 ])
 def test_quantization(
         quant_func: str,
@@ -249,8 +247,7 @@ def test_quantization(
         "PTQ_Keras": PTQ_Keras,
         "PTQ_Keras_mixed_precision": PTQ_Keras_mixed_precision,
         "GPTQ_Keras": GPTQ_Keras,
-        "GPTQ_Keras_mixed_precision": GPTQ_Keras_mixed_precision,
-        # "LQPTQ_Keras": LQPTQ_Keras,  # Uncomment if needed
+        "GPTQ_Keras_mixed_precision": GPTQ_Keras_mixed_precision
     }
     
     # Run the selected quantization method and verify success
