@@ -29,8 +29,6 @@ from model_compression_toolkit.wrapper.constants import (
 )
 
 
-
-
 class MCTWrapper:
     """
     Wrapper class for Model Compression Toolkit (MCT) quantization and export.
