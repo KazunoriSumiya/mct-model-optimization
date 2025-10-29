@@ -365,7 +365,7 @@ class MCTWrapper:
 
         core_config = mct.core.CoreConfig(
             mixed_precision_config = mixed_precision_config,
-            quantization_config = mct.core.QuantizationConfig(concat_threshold_update=True)
+            quantization_config = mct.core.QuantizationConfig()
         )
 
         params_GPTQ = {

@@ -376,7 +376,7 @@ class TestMCTWrapper:
             num_of_images=5,
             use_hessian_based_scores=False
         )
-        mock_quant_config.assert_called_with(concat_threshold_update=True)
+        mock_quant_config.assert_called_with()  # No parameters expected
         mock_resource_util.assert_called_with(750.0)  # 1000 * 0.75
         
         # Check that TensorFlow-specific parameter mapping is applied
