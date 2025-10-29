@@ -51,3 +51,9 @@ MODEL = 'model'
 # GPTQ parameters
 N_EPOCHS = 'n_epochs'
 OPTIMIZER = 'optimizer'
+
+# Export parameters
+CONVERTER_VER = 'converter_ver'
+LEARNING_RATE = 'learning_rate'
+CALLBACK = 'callback'
+SAVE_MODEL_PATH = 'save_model_path'

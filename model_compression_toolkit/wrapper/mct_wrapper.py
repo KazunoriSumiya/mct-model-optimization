@@ -24,8 +24,11 @@ from model_compression_toolkit.wrapper.constants import (
     TARGET_PLATFORM_CAPABILITIES, TARGET_RESOURCE_UTILIZATION,
     ACTIVATION_ERROR_METHOD, WEIGHTS_ERROR_METHOD, WEIGHTS_BIAS_CORRECTION,
     Z_THRESHOLD, LINEAR_COLLAPSING, RESIDUAL_COLLAPSING, GPTQ_CONFIG,
-    WEIGHTS_COMPRESSION_RATIO, N_EPOCHS, OPTIMIZER
+    WEIGHTS_COMPRESSION_RATIO, N_EPOCHS, OPTIMIZER, LEARNING_RATE, 
+    CONVERTER_VER, CALLBACK, SAVE_MODEL_PATH
 )
+
+
 
 
 class MCTWrapper:
@@ -58,37 +61,37 @@ class MCTWrapper:
         """
         self.params: Dict[str, Any] = {
             # TPC
-            'fw_name': 'pytorch',
-            'target_platform_version': 'v1',
-            'tpc_version': '5.0',
+            FW_NAME: 'pytorch',
+            TARGET_PLATFORM_VERSION: 'v1',
+            TPC_VERSION: '5.0',
 
             # QuantizationConfig
-            'activation_error_method': mct.core.QuantizationErrorMethod.MSE,
-            'weights_bias_correction': True,
-            'z_threshold': float('inf'),
-            'linear_collapsing': True,
-            'residual_collapsing': True,
+            ACTIVATION_ERROR_METHOD: mct.core.QuantizationErrorMethod.MSE,
+            WEIGHTS_BIAS_CORRECTION: True,
+            Z_THRESHOLD: float('inf'),
+            LINEAR_COLLAPSING: True,
+            RESIDUAL_COLLAPSING: True,
 
             # GradientPTQConfig
-            'n_epochs': 5,
-            'optimizer': None,
+            N_EPOCHS: 5,
+            OPTIMIZER: None,
 
             # MixedPrecisionQuantizationConfig
-            'num_of_images': 5,
-            'use_hessian_based_scores': False,
+            NUM_OF_IMAGES: 5,
+            USE_HESSIAN_BASED_SCORES: False,
 
             # ResourceUtilization
-            'weights_compression_ratio': None,
+            WEIGHTS_COMPRESSION_RATIO: None,
 
             # low_bit_quantizer_ptq
-            'learning_rate': 0.001,
-            'converter_ver': 'v3.14',
+            LEARNING_RATE: 0.001,
+            CONVERTER_VER: 'v3.14',
 
             # Export
-            'save_model_path': './qmodel.onnx',
-            
+            SAVE_MODEL_PATH: './qmodel.onnx',
+
             # Callback function
-            'callback': None
+            CALLBACK: None
         }
 
     def _initialize_and_validate(self, float_model: Any, method: str = 'PTQ',
