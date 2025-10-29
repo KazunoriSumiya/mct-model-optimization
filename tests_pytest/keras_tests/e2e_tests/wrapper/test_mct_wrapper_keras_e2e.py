@@ -138,13 +138,11 @@ def test_quantization(
 
         # Configure quantization parameters for optimal model performance
         param_items = [['tpc_version', '1.0', 'The version of the TPC to use.'],
-
                        ['activation_error_method', QuantizationErrorMethod.MSE, 'ErrorMethod.'],
                        ['weights_bias_correction', True, ''],
                        ['z_threshold', float('inf'), ''],
                        ['linear_collapsing', True, ''],
                        ['residual_collapsing', True, ''],
-
                        ['save_model_path', './qmodel_PTQ_Keras.tflite', 'Path to save the model.']]
 
         # Execute quantization using MCTWrapper
@@ -172,9 +170,7 @@ def test_quantization(
         param_items = [['tpc_version', '1.0', 'The version of the TPC to use.'],
                        ['num_of_images', 5, 'Whether to use Hessian-based scores for weighted average distance metric computation. This is identical to passing'],
                        ['use_hessian_based_scores', False, ' Whether to use Hessian-based scores for weighted average distance metric computation. This is identical to passing'],
-
                        ['weights_compression_ratio', 0.75, ''],
-
                        ['save_model_path', './qmodel_PTQ_Keras_mixed_precision.tflite', 'Path to save the model.']]
 
         # Execute quantization with mixed precision using MCTWrapper
@@ -200,10 +196,8 @@ def test_quantization(
 
         # Configure GPTQ-specific parameters for gradient-based optimization
         param_items = [['target_platform_version', 'v1', 'Target platform capabilities version.'],
-
                        ['n_epochs', 5, 'Number of epochs for running the representative dataset for fine-tuning.'],
                        ['optimizer', None, 'optimizer to use for fine-tuning for auxiliary variable.'],
-    
                        ['save_model_path', './qmodel_GPTQ_Keras.tflite', 'Path to save the model.']]
 
         # Execute gradient-based quantization using MCTWrapper
@@ -221,15 +215,11 @@ def test_quantization(
         use_mixed_precision = True
 
         param_items = [['target_platform_version', 'v1', 'Target platform capabilities version.'],
-
                        ['n_epochs', 5, 'Number of epochs for running the representative dataset for fine-tuning.'],
                        ['optimizer', None, 'optimizer to use for fine-tuning for auxiliary variable.'],
-
                        ['num_of_images', 5, 'Whether to use Hessian-based scores for weighted average distance metric computation. This is identical to passing'],
                        ['use_hessian_based_scores', False, ' Whether to use Hessian-based scores for weighted average distance metric computation. This is identical to passing'],
-
                        ['weights_compression_ratio', 0.75, ''],
-
                        ['save_model_path', './qmodel_GPTQ_Keras_mixed_precision.tflite', 'Path to save the model.']]
 
         wrapper = mct.wrapper.mct_wrapper.MCTWrapper()
@@ -249,7 +239,6 @@ def test_quantization(
 
                        ['learning_rate', 0.0001, ''],
                        ['converter_ver', 'v3.14', ''],
-
                        ['save_model_path', './qmodel_LQPTQ_Keras.tflite', 'Path to save the model.']]
 
         wrapper = mct.wrapper.wrap.MCTWrapper()
