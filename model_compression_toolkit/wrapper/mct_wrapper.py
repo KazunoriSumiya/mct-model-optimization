@@ -13,8 +13,7 @@
 #  limitations under the License.
 #  ==============================================================================
 
-import os
-from typing import Dict, Any, List, Tuple, Optional, Union, Callable
+from typing import Dict, Any, List, Optional
 import model_compression_toolkit as mct
 from model_compression_toolkit.logger import Logger
 from model_compression_toolkit.verify_packages import FOUND_TPC
@@ -96,7 +95,8 @@ class MCTWrapper:
                                  framework: str = 'pytorch',
                                  use_internal_tpc: bool = True,
                                  use_mixed_precision: bool = False,
-                                 representative_dataset: Any = None) -> None:
+                                 representative_dataset: Optional[Any] = None
+                                 ) -> None:
         """
         Validate inputs and Initialize parameters.
 
@@ -255,6 +255,7 @@ class MCTWrapper:
             self.tpc = mct.get_target_platform_capabilities(**params_TPC)
         else:
             if FOUND_TPC:
+                import edgemdt_tpc
                 # Use external EdgeMDT TPC configuration
                 params_TPC = {
                     TPC_VERSION: self.params[TPC_VERSION],
@@ -275,7 +276,7 @@ class MCTWrapper:
         """
         params_MPCfg = {
             NUM_OF_IMAGES: self.params[NUM_OF_IMAGES],
-            USE_HESSIAN_BASED_SCORES: self.params[USE_HESSIAN_BASED_SCORES],
+            USE_HESSIAN_BASED_SCORES: self.params[USE_HESSIAN_BASED_SCORES]
         }
         mixed_precision_config = mct.core.MixedPrecisionQuantizationConfig(**params_MPCfg)
         core_config = mct.core.CoreConfig(mixed_precision_config=mixed_precision_config)
