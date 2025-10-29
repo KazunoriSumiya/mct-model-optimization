@@ -30,8 +30,6 @@ The tests use a simple CNN model and random data for representative
 dataset generation for quantization testing. All quantized models are
 exported to ONNX format for cross-platform deployment.
 """
-
-# Import required libraries
 import pytest
 import torch
 import torch.nn as nn

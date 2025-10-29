@@ -16,10 +16,8 @@
 """
 Test cases for MCTWrapper class from model_compression_toolkit.wrapper.mct_wrapper
 """
-
 import pytest
 from unittest.mock import Mock, patch
-from typing import Any, List, Tuple
 from model_compression_toolkit.core import QuantizationErrorMethod
 from model_compression_toolkit.wrapper.mct_wrapper import MCTWrapper
 

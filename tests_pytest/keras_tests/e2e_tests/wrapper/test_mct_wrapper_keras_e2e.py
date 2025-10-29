@@ -30,7 +30,6 @@ Test Coverage:
 The tests use a simple CNN model and random data for representative
 dataset generation for quantization testing.
 """
-
 import pytest
 import tensorflow as tf
 import keras
