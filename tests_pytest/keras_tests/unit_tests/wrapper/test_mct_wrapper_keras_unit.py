@@ -113,11 +113,7 @@ class TestMCTWrapper:
         assert 'another_fake_key' not in wrapper.params
 
     @patch('model_compression_toolkit.wrapper.mct_wrapper.mct.get_target_platform_capabilities')
-<<<<<<< HEAD
     def test_get_tpc_with_internal_tpc(self, mock_mct_get_tpc: Mock) -> None:
-=======
-    def test_get_tpc_with_MCT_TPC(self, mock_mct_get_tpc: Mock) -> None:
->>>>>>> c7e744b258dc84e0a633a8f68ef8a78722b3011a
         """
         Test _get_tpc method when using MCT TPC.
         
