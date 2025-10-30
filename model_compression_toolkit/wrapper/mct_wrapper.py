@@ -456,7 +456,7 @@ class MCTWrapper:
             float_model: The float model to be quantized.
             method (str): Quantization method, e.g., 'PTQ' or 'GPTQ' or 'LQ=PTQ
             framework (str): 'tensorflow' or 'pytorch'.
-            use_internal_tpc (bool): Whether to use MCT_TPC.
+            use_internal_tpc (bool): Whether to use internal_tpc.
             use_mixed_precision (bool): Whether to use mixed-precision
                 quantization.
             representative_dataset: Representative dataset for calibration.

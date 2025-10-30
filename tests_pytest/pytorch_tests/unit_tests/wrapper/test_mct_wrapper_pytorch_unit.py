@@ -113,7 +113,7 @@ class TestMCTWrapper:
         assert 'another_fake_key' not in wrapper.params
 
     @patch('model_compression_toolkit.wrapper.mct_wrapper.mct.get_target_platform_capabilities')
-    def test_get_tpc_with_MCT_TPC(self, mock_mct_get_tpc: Mock) -> None:
+    def test_get_tpc_with_internal_tpc(self, mock_mct_get_tpc: Mock) -> None:
         """
         Test _get_tpc method when using MCT TPC.
         
@@ -140,7 +140,7 @@ class TestMCTWrapper:
         mock_mct_get_tpc.assert_called_once_with(**expected_params)
         assert wrapper.tpc == mock_tpc
 
-    def test_get_tpc_without_MCT_TPC(self) -> None:
+    def test_get_tpc_without_internal_tpc(self) -> None:
         """
         Test _get_tpc method when EdgeMDT TPC is not available.
         
