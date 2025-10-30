@@ -22,9 +22,9 @@ quantization methods including PTQ, GPTQ, and their mixed-precision variants.
 
 Test Coverage:
 - Post-Training Quantization (PTQ)
-- PTQ with Mixed Precision (MixP)
+- PTQ with Mixed Precision
 - Gradient Post-Training Quantization (GPTQ)
-- GPTQ with Mixed Precision (MixP)
+- GPTQ with Mixed Precision
 
 The tests use a simple CNN model and random data for representative
 dataset generation for quantization testing.
