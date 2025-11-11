@@ -112,6 +112,9 @@ target_platform_capabilities
 - :ref:`get_target_platform_capabilities<ug-get_target_platform_capabilities>`: A function to get a target platform model for Tensorflow and Pytorch.
 - :ref:`DefaultDict<ug-DefaultDict>`: Util class for creating a TargetPlatformCapabilities.
 
+wrapper
+==============================
+- :ref:`wrapper<ug-wrapper>`: Util class for the Model Compression Toolkit (MCT) wrapper API. People who are not familiar with MCT specifications can easily use MCT.
 
 Indices and tables
 ==================

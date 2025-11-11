@@ -35,7 +35,7 @@ class MCTWrapper:
 
     This class provides a unified interface for various neural network
     quantization methods including Post-Training Quantization (PTQ), Gradient
-    Post-Training Quantization (GPTQ), and Low-bit Quantization PTQ (LQ-PTQ).
+    Post-Training Quantization (GPTQ).
     It supports both TensorFlow and PyTorch frameworks with optional
     mixed-precision quantization.
 
@@ -44,14 +44,19 @@ class MCTWrapper:
     Target Platform Capabilities (TPC) setup.
 
     Attributes:
-        params (dict): Configuration parameters for quantization methods
-        float_model: The input float precision model
-        method (str): Selected quantization method ('PTQ', 'GPTQ', 'LQPTQ')
+        params (Dict[str, Any]): Configuration default parameters for quantization [[key, value],...]
+        float_model: Input float precision model
+            (set by _initialize_and_validate)
+        method (str): Selected quantization method ('PTQ', 'GPTQ')
+            (set by _initialize_and_validate)
         framework (str): Target framework ('tensorflow', 'pytorch')
+            (set by _initialize_and_validate)
         use_internal_tpc (bool): Whether to use MCT's built-in TPC
-        use_mixed_precision (bool): Whether to use mixed-precision quantization
+            (set by _initialize_and_validate)
+        use_mixed_precision (bool): Whether to use mixed-precision
+            quantization (set by _initialize_and_validate)
         representative_dataset: Calibration dataset for quantization
-        tpc: Target Platform Capabilities configuration
+            (set by _initialize_and_validate)
     """
     def __init__(self):
         """
@@ -99,7 +104,7 @@ class MCTWrapper:
                                  representative_dataset: Optional[Any] = None
                                  ) -> None:
         """
-        Validate inputs and Initialize parameters.
+        Validate inputs and initialize parameters.
 
         Args:
             float_model: The float model to be quantized.
@@ -454,16 +459,55 @@ class MCTWrapper:
 
         Args:
             float_model: The float model to be quantized.
-            method (str): Quantization method, e.g., 'PTQ' or 'GPTQ' or 'LQ=PTQ
+            method (str): Quantization method, e.g., 'PTQ' or 'GPTQ'
             framework (str): 'tensorflow' or 'pytorch'.
             use_internal_tpc (bool): Whether to use internal_tpc.
             use_mixed_precision (bool): Whether to use mixed-precision
                 quantization.
             representative_dataset: Representative dataset for calibration.
-            param_items (list): List of parameter settings.
+            param_items (list): List of parameter settings. [[key,value,comment],...]
 
         Returns:
             tuple: (Flag, quantized model)
+            
+        Examples:
+
+            Import MCT:
+
+            >>> import model_compression_toolkit as mct
+            
+            # Prepare the float model and dataset
+            
+            >>> float_model = ...
+            >>> representative_dataset = ...
+          
+            # Create an instance of the MCTWrapper
+
+            >>> wrapper = mct.MCTWrapper()
+
+            # set method, framework, and other parameters
+
+            >>> method = 'PTQ'
+            >>> framework = 'tensorflow'
+            >>> use_internal_tpc = True
+            >>> use_mixed_precision = False
+
+            # set parameters if needed
+
+            >>> param_items = [[key, value, comment]...]
+
+            # Quantize and export the model
+
+            >>> flag, quantized_model = wrapper.quantize_and_export(
+            ...     float_model=float_model,
+            ...     method='PTQ',
+            ...     framework=framework,
+            ...     use_internal_tpc=use_internal_tpc,
+            ...     use_mixed_precision=use_mixed_precision,
+            ...     representative_dataset=representative_dataset,
+            ...     param_items=param_items
+            ... )
+
         """
         try:
             # Step 1: Initialize and validate all input parameters
