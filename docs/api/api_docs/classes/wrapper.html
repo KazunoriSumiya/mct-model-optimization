@@ -126,6 +126,9 @@ Target Platform Capabilities (TPC) setup.</p>
 
 <p>Initialize MCTWrapper with default parameters.
 Users can update the following parameters in param_items:</p>
+<blockquote>
+<div><p>PTQ</p>
+</div></blockquote>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter Key</p></th>
@@ -134,37 +137,140 @@ Users can update the following parameters in param_items:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>fw_name</p></td>
-<td><p>‘pytorch’</p></td>
-<td><p>Framework name</p></td>
-</tr>
-<tr class="row-odd"><td><p>target_platform_version</p></td>
+<tr class="row-even"><td><p>target_platform_version</p></td>
 <td><p>‘v1’</p></td>
-<td><p>Target platform version</p></td>
+<td><p>Target platform version (use_internal_tpc=True)</p></td>
 </tr>
-<tr class="row-even"><td><p>tpc_version</p></td>
+<tr class="row-odd"><td><p>tpc_version</p></td>
 <td><p>‘5.0’</p></td>
-<td><p>TPC version</p></td>
+<td><p>TPC version (use_internal_tpc=False)</p></td>
 </tr>
-<tr class="row-odd"><td><p>activation_error_method</p></td>
+<tr class="row-even"><td><p>activation_error_method</p></td>
 <td><p>mct.core.QuantizationErrorMethod.MSE</p></td>
 <td><p>Activation quantization error method</p></td>
 </tr>
-<tr class="row-even"><td><p>weights_bias_correction</p></td>
+<tr class="row-odd"><td><p>weights_bias_correction</p></td>
 <td><p>True</p></td>
 <td><p>Enable weights bias correction</p></td>
 </tr>
-<tr class="row-odd"><td><p>z_threshold</p></td>
+<tr class="row-even"><td><p>z_threshold</p></td>
 <td><p>float(‘inf’)</p></td>
 <td><p>Z-threshold for quantization</p></td>
 </tr>
-<tr class="row-even"><td><p>linear_collapsing</p></td>
+<tr class="row-odd"><td><p>linear_collapsing</p></td>
 <td><p>True</p></td>
 <td><p>Enable linear layer collapsing</p></td>
 </tr>
-<tr class="row-odd"><td><p>residual_collapsing</p></td>
+<tr class="row-even"><td><p>residual_collapsing</p></td>
 <td><p>True</p></td>
 <td><p>Enable residual connection collapsing</p></td>
+</tr>
+<tr class="row-odd"><td><p>save_model_path</p></td>
+<td><p>‘./qmodel.tflite’ / ‘./qmodel.onnx’</p></td>
+<td><p>Path to save quantized model (Keras/Pytorch)</p></td>
+</tr>
+<tr class="row-even"><td><p>callback</p></td>
+<td><p>None</p></td>
+<td><p>Callback function</p></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<div><p>PTQ, mixed_precision</p>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter Key</p></th>
+<th class="head"><p>Default Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>target_platform_version</p></td>
+<td><p>‘v1’</p></td>
+<td><p>Target platform version (use_internal_tpc=True)</p></td>
+</tr>
+<tr class="row-odd"><td><p>tpc_version</p></td>
+<td><p>‘5.0’</p></td>
+<td><p>TPC version (use_internal_tpc=False)</p></td>
+</tr>
+<tr class="row-even"><td><p>num_of_images</p></td>
+<td><p>5</p></td>
+<td><p>Number of images for mixed precision</p></td>
+</tr>
+<tr class="row-odd"><td><p>use_hessian_based_scores</p></td>
+<td><p>False</p></td>
+<td><p>Use Hessian-based scores for mixed precision</p></td>
+</tr>
+<tr class="row-even"><td><p>weights_compression_ratio</p></td>
+<td><p>None</p></td>
+<td><p>Weights compression ratio for resource util</p></td>
+</tr>
+<tr class="row-odd"><td><p>save_model_path</p></td>
+<td><p>‘./qmodel.tflite’ / ‘./qmodel.onnx’</p></td>
+<td><p>Path to save quantized model (Keras/Pytorch)</p></td>
+</tr>
+<tr class="row-even"><td><p>callback</p></td>
+<td><p>None</p></td>
+<td><p>Callback function</p></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<div><p>GPTQ</p>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter Key</p></th>
+<th class="head"><p>Default Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>target_platform_version</p></td>
+<td><p>‘v1’</p></td>
+<td><p>Target platform version (use_internal_tpc=True)</p></td>
+</tr>
+<tr class="row-odd"><td><p>tpc_version</p></td>
+<td><p>‘5.0’</p></td>
+<td><p>TPC version (use_internal_tpc=False)</p></td>
+</tr>
+<tr class="row-even"><td><p>n_epochs</p></td>
+<td><p>5</p></td>
+<td><p>Number of training epochs for GPTQ</p></td>
+</tr>
+<tr class="row-odd"><td><p>optimizer</p></td>
+<td><p>None</p></td>
+<td><p>Optimizer for GPTQ training</p></td>
+</tr>
+<tr class="row-even"><td><p>save_model_path</p></td>
+<td><p>‘./qmodel.tflite’ / ‘./qmodel.onnx’</p></td>
+<td><p>Path to save quantized model (Keras/Pytorch)</p></td>
+</tr>
+<tr class="row-odd"><td><p>callback</p></td>
+<td><p>None</p></td>
+<td><p>Callback function</p></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<div><p>GPTQ, mixed_precision</p>
+</div></blockquote>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter Key</p></th>
+<th class="head"><p>Default Value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>target_platform_version</p></td>
+<td><p>‘v1’</p></td>
+<td><p>Target platform version (use_internal_tpc=True)</p></td>
+</tr>
+<tr class="row-odd"><td><p>tpc_version</p></td>
+<td><p>‘5.0’</p></td>
+<td><p>TPC version (use_internal_tpc=False)</p></td>
 </tr>
 <tr class="row-even"><td><p>n_epochs</p></td>
 <td><p>5</p></td>
@@ -186,17 +292,9 @@ Users can update the following parameters in param_items:</p>
 <td><p>None</p></td>
 <td><p>Weights compression ratio for resource util</p></td>
 </tr>
-<tr class="row-odd"><td><p>learning_rate</p></td>
-<td><p>0.001</p></td>
-<td><p>Learning rate for low-bit quantization</p></td>
-</tr>
-<tr class="row-even"><td><p>converter_ver</p></td>
-<td><p>‘v3.14’</p></td>
-<td><p>Converter version for low-bit quantization</p></td>
-</tr>
 <tr class="row-odd"><td><p>save_model_path</p></td>
-<td><p>‘./qmodel.onnx’</p></td>
-<td><p>Path to save quantized model</p></td>
+<td><p>‘./qmodel.tflite’ / ‘./qmodel.onnx’</p></td>
+<td><p>Path to save quantized model (Keras/Pytorch)</p></td>
 </tr>
 <tr class="row-even"><td><p>callback</p></td>
 <td><p>None</p></td>
