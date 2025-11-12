@@ -114,7 +114,7 @@ target_platform_capabilities
 
 wrapper
 ==============================
-- :ref:`wrapper<ug-wrapper>`: Util class for the Model Compression Toolkit (MCT) wrapper API. People who are not familiar with MCT specifications can easily use MCT.
+- :ref:`wrapper<ug-wrapper>`: Util class for the Model Compression Toolkit (MCT) wrapper API. This class enables users to use MCT easily, without the need to know its specifications.
 
 Indices and tables
 ==================

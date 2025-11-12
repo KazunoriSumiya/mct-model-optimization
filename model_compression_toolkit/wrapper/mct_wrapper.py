@@ -13,7 +13,7 @@
 #  limitations under the License.
 #  ==============================================================================
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 import model_compression_toolkit as mct
 from model_compression_toolkit.logger import Logger
 from model_compression_toolkit.verify_packages import FOUND_TPC
@@ -46,21 +46,54 @@ class MCTWrapper:
     Attributes:
         params (Dict[str, Any]): Configuration default parameters for quantization [[key, value],...]
         float_model: Input float precision model
-            (set by _initialize_and_validate)
         method (str): Selected quantization method ('PTQ', 'GPTQ')
-            (set by _initialize_and_validate)
         framework (str): Target framework ('tensorflow', 'pytorch')
-            (set by _initialize_and_validate)
         use_internal_tpc (bool): Whether to use MCT's built-in TPC
-            (set by _initialize_and_validate)
         use_mixed_precision (bool): Whether to use mixed-precision
-            quantization (set by _initialize_and_validate)
-        representative_dataset: Calibration dataset for quantization
-            (set by _initialize_and_validate)
-    """
+        representative_dataset (Callable, np.array, tf.Tensor): Calibration dataset for quantization
+     """
     def __init__(self):
         """
         Initialize MCTWrapper with default parameters.
+        Users can update the following parameters in param_items:
+
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | Parameter Key                     | Default Value                            | Description                                    |
+        +===================================+==========================================+================================================+
+        | fw_name                           | 'pytorch'                                | Framework name                                 |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | target_platform_version           | 'v1'                                     | Target platform version                        |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | tpc_version                       | '5.0'                                    | TPC version                                    |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | activation_error_method           | mct.core.QuantizationErrorMethod.MSE     | Activation quantization error method           |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | weights_bias_correction           | True                                     | Enable weights bias correction                 |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | z_threshold                       | float('inf')                             | Z-threshold for quantization                   |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | linear_collapsing                 | True                                     | Enable linear layer collapsing                 |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | residual_collapsing               | True                                     | Enable residual connection collapsing          |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | n_epochs                          | 5                                        | Number of training epochs for GPTQ             |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | optimizer                         | None                                     | Optimizer for GPTQ training                    |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | num_of_images                     | 5                                        | Number of images for mixed precision           |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | use_hessian_based_scores          | False                                    | Use Hessian-based scores for mixed precision   |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | weights_compression_ratio         | None                                     | Weights compression ratio for resource util    |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | learning_rate                     | 0.001                                    | Learning rate for low-bit quantization         |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | converter_ver                     | 'v3.14'                                  | Converter version for low-bit quantization     |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | save_model_path                   | './qmodel.onnx'                          | Path to save quantized model                   |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        | callback                          | None                                     | Callback function                              |
+        +-----------------------------------+------------------------------------------+------------------------------------------------+
         """
         self.params: Dict[str, Any] = {
             # TPC
@@ -112,7 +145,7 @@ class MCTWrapper:
             framework (str): Target framework ('tensorflow', 'pytorch').
             use_internal_tpc (bool): Whether to use MCT's built-in TPC.
             use_mixed_precision (bool): Whether to use mixed-precision quantization.
-            representative_dataset: Representative dataset for calibration.
+            representative_dataset (Callable, np.array, tf.Tensor): Representative dataset for calibration.
 
         Raises:
             Exception: If method or framework is not supported.
@@ -453,7 +486,7 @@ class MCTWrapper:
     def quantize_and_export(self, float_model: Any, method: str, framework: str,
                             use_internal_tpc: bool, use_mixed_precision: bool,
                             representative_dataset: Any,
-                            param_items: List[List[Any]]) -> None:
+                            param_items: List[List[Any]]) -> Tuple[bool, Any]:
         """
         Main function to perform model quantization and export.
 
@@ -464,11 +497,11 @@ class MCTWrapper:
             use_internal_tpc (bool): Whether to use internal_tpc.
             use_mixed_precision (bool): Whether to use mixed-precision
                 quantization.
-            representative_dataset: Representative dataset for calibration.
+            representative_dataset (Callable, np.array, tf.Tensor): Representative dataset for calibration.
             param_items (list): List of parameter settings. [[key,value,comment],...]
 
         Returns:
-            tuple: (Flag, quantized model)
+            tuple: (quantization success flag, quantized model)
             
         Examples:
 
