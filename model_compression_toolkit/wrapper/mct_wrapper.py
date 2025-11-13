@@ -533,27 +533,27 @@ class MCTWrapper:
 
             >>> import model_compression_toolkit as mct
             
-            # Prepare the float model and dataset
+            Prepare the float model and dataset
             
             >>> float_model = ...
             >>> representative_dataset = ...
           
-            # Create an instance of the MCTWrapper
+            Create an instance of the MCTWrapper
 
             >>> wrapper = mct.MCTWrapper()
 
-            # set method, framework, and other parameters
+            set method, framework, and other parameters
 
             >>> method = 'PTQ'
             >>> framework = 'tensorflow'
             >>> use_internal_tpc = True
             >>> use_mixed_precision = False
 
-            # set parameters if needed
+            set parameters if needed
 
             >>> param_items = [[key, value, comment]...]
 
-            # Quantize and export the model
+            Quantize and export the model
 
             >>> flag, quantized_model = wrapper.quantize_and_export(
             ...     float_model=float_model,
