@@ -557,7 +557,7 @@ class MCTWrapper:
 
             >>> flag, quantized_model = wrapper.quantize_and_export(
             ...     float_model=float_model,
-            ...     method='PTQ',
+            ...     method=method,
             ...     framework=framework,
             ...     use_internal_tpc=use_internal_tpc,
             ...     use_mixed_precision=use_mixed_precision,
