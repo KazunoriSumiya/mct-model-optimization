@@ -56,88 +56,68 @@ class MCTWrapper:
     def __init__(self):
         """
         Initialize MCTWrapper with default parameters.
+        
         Users can update the following parameters in param_items:
-		PTQ
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | Parameter Key                     | Default Value                            | Description                                    |
-        +===================================+==========================================+================================================+
-        | target_platform_version           | 'v1'                                     | Target platform version (use_internal_tpc=True)|
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | tpc_version                       | '5.0'                                    | TPC version (use_internal_tpc=False)           |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | activation_error_method           | mct.core.QuantizationErrorMethod.MSE     | Activation quantization error method           |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | weights_bias_correction           | True                                     | Enable weights bias correction                 |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | z_threshold                       | float('inf')                             | Z-threshold for quantization                   |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | linear_collapsing                 | True                                     | Enable linear layer collapsing                 |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | residual_collapsing               | True                                     | Enable residual connection collapsing          |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | save_model_path                   | './qmodel.tflite' / './qmodel.onnx'      | Path to save quantized model (Keras/Pytorch)   |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | callback                          | None                                     | Callback function                              |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
 
-		PTQ, mixed_precision
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | Parameter Key                     | Default Value                            | Description                                    |
-        +===================================+==========================================+================================================+
-        | target_platform_version           | 'v1'                                     | Target platform version (use_internal_tpc=True)|
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | tpc_version                       | '5.0'                                    | TPC version (use_internal_tpc=False)           |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | num_of_images                     | 5                                        | Number of images for mixed precision           |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | use_hessian_based_scores          | False                                    | Use Hessian-based scores for mixed precision   |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | weights_compression_ratio         | None                                     | Weights compression ratio for resource util    |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | save_model_path                   | './qmodel.tflite' / './qmodel.onnx'      | Path to save quantized model (Keras/Pytorch)   |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | callback                          | None                                     | Callback function                              |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        **PTQ**
 
-		GPTQ
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | Parameter Key                     | Default Value                            | Description                                    |
-        +===================================+==========================================+================================================+
-        | target_platform_version           | 'v1'                                     | Target platform version (use_internal_tpc=True)|
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | tpc_version                       | '5.0'                                    | TPC version (use_internal_tpc=False)           |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | n_epochs                          | 5                                        | Number of training epochs for GPTQ             |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | optimizer                         | None                                     | Optimizer for GPTQ training                    |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | save_model_path                   | './qmodel.tflite' / './qmodel.onnx'      | Path to save quantized model (Keras/Pytorch)   |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | callback                          | None                                     | Callback function                              |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
+        .. csv-table::
+           :header: "Parameter Key", "Default Value", "Description"
+           :widths: 30, 30, 40
 
-		GPTQ, mixed_precision
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | Parameter Key                     | Default Value                            | Description                                    |
-        +===================================+==========================================+================================================+
-        | target_platform_version           | 'v1'                                     | Target platform version (use_internal_tpc=True)|
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | tpc_version                       | '5.0'                                    | TPC version (use_internal_tpc=False)           |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | n_epochs                          | 5                                        | Number of training epochs for GPTQ             |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | optimizer                         | None                                     | Optimizer for GPTQ training                    |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | num_of_images                     | 5                                        | Number of images for mixed precision           |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | use_hessian_based_scores          | False                                    | Use Hessian-based scores for mixed precision   |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | weights_compression_ratio         | None                                     | Weights compression ratio for resource util    |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | save_model_path                   | './qmodel.tflite' / './qmodel.onnx'      | Path to save quantized model (Keras/Pytorch)   |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
-        | callback                          | None                                     | Callback function                              |
-        +-----------------------------------+------------------------------------------+------------------------------------------------+
+           "target_platform_version", "'v1'", "Target platform version (use_internal_tpc=True)"
+           "tpc_version", "'5.0'", "TPC version (use_internal_tpc=False)"
+           "activation_error_method", "mct.core.QuantizationErrorMethod.MSE", "Activation quantization error method"
+           "weights_bias_correction", "True", "Enable weights bias correction"
+           "z_threshold", "float('inf')", "Z-threshold for quantization"
+           "linear_collapsing", "True", "Enable linear layer collapsing"
+           "residual_collapsing", "True", "Enable residual connection collapsing"
+           "save_model_path", "'./qmodel.tflite' / './qmodel.onnx'", "Path to save quantized model (Keras/Pytorch)"
+           "callback", "None", "Callback function"
+
+        **PTQ, mixed_precision**
+
+        .. csv-table::
+           :header: "Parameter Key", "Default Value", "Description"
+           :widths: 30, 30, 40
+
+           "target_platform_version", "'v1'", "Target platform version (use_internal_tpc=True)"
+           "tpc_version", "'5.0'", "TPC version (use_internal_tpc=False)"
+           "num_of_images", "5", "Number of images for mixed precision"
+           "use_hessian_based_scores", "False", "Use Hessian-based scores for mixed precision"
+           "weights_compression_ratio", "None", "Weights compression ratio for resource util"
+           "save_model_path", "'./qmodel.tflite' / './qmodel.onnx'", "Path to save quantized model (Keras/Pytorch)"
+           "callback", "None", "Callback function"
+
+        **GPTQ**
+
+        .. csv-table::
+           :header: "Parameter Key", "Default Value", "Description"
+           :widths: 30, 30, 40
+
+           "target_platform_version", "'v1'", "Target platform version (use_internal_tpc=True)"
+           "tpc_version", "'5.0'", "TPC version (use_internal_tpc=False)"
+           "n_epochs", "5", "Number of training epochs for GPTQ"
+           "optimizer", "None", "Optimizer for GPTQ training"
+           "save_model_path", "'./qmodel.tflite' / './qmodel.onnx'", "Path to save quantized model (Keras/Pytorch)"
+           "callback", "None", "Callback function"
+
+        **GPTQ, mixed_precision**
+
+        .. csv-table::
+           :header: "Parameter Key", "Default Value", "Description"
+           :widths: 30, 30, 40
+
+           "target_platform_version", "'v1'", "Target platform version (use_internal_tpc=True)"
+           "tpc_version", "'5.0'", "TPC version (use_internal_tpc=False)"
+           "n_epochs", "5", "Number of training epochs for GPTQ"
+           "optimizer", "None", "Optimizer for GPTQ training"
+           "num_of_images", "5", "Number of images for mixed precision"
+           "use_hessian_based_scores", "False", "Use Hessian-based scores for mixed precision"
+           "weights_compression_ratio", "None", "Weights compression ratio for resource util"
+           "save_model_path", "'./qmodel.tflite' / './qmodel.onnx'", "Path to save quantized model (Keras/Pytorch)"
+           "callback", "None", "Callback function"
+
         """
         self.params: Dict[str, Any] = {
             # TPC
