@@ -51,7 +51,7 @@ class MCTWrapper:
         use_internal_tpc (bool): Whether to use MCT's built-in TPC
         use_mixed_precision (bool): Whether to use mixed-precision
         representative_dataset (Callable, np.array, tf.Tensor): Calibration dataset for quantization
-     """
+    """
     def __init__(self):
         """
         Initialize MCTWrapper with default parameters.
